@@ -19,7 +19,7 @@ classdef VectorFields
          function obj = readUV(obj, fixedWindDeltaT, modelHour, modelDay)
 
             eps = .01; % Modified epsilon to make it work with ceil
-            fixedWindDeltaT = 1;
+            fixedWindDeltaT = 6; % This is the delta T for the wind fields
             atmInputFolder  = '/home/olmozavala/Desktop/PETROLEO_OUT/'; % Input folder where de atm data is stored
 		oceanInputFolder  = '/home/olmozavala/Desktop/PETROLEO_OUT/'; % Input folder where de oceanic data is stored
 		atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files

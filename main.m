@@ -5,8 +5,8 @@ addLocalPaths()
 
 modelConfig = SpillInfo;
 
-modelConfig.startDate = 116;
-modelConfig.endDate = 120;%258
+modelConfig.startDate = datetime(2010,05,01);
+modelConfig.endDate =  datetime(2010,05,03);
 modelConfig.lat= 116;
 modelConfig.lon = 120;%258
 modelConfig.depths = [0 300 1000]; 
@@ -16,6 +16,7 @@ modelConfig.components = {[0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3], ...
 
 modelConfig.subSurfaceFraction = [1/3,2/3];
 modelConfig.timeStep = 2; % 6 Hours time step
+modelConfig.initPartSize = 100; % Initial size of particles vector array of lats, lons, etc.
 modelConfig.decay.evaporate = 1;
 modelConfig.decay.biodeg = 1;
 modelConfig.decay.burned = 1;
@@ -33,32 +34,34 @@ modelConfig.decay.byComponent = [umbral(15), umbral(30), umbral(45), umbral(60),
 % VNW                = Cantidad de petroleo recuperado en agua
 % VDB                = Cantidad de petroleo dispersado en la sub-superficie
 [FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB] = cantidades_por_dia;
-spillData = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB)
+
+spillData = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB);
 
 VF = VectorFields(0);
 
-advectParticles = false % Indicate when should we start reading the UV fields
-Particles = {}
+advectParticles = false; % Indicate when should we start reading the UV fields
+Particles = 0; % Start the array of particles empty
 
-for currDay = modelConfig.startDate:modelConfig.endDate
+for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(modelConfig.endDate))
 
     % Verify we have some data in this day
     if any(FechasDerrame == currDay)
         advectParticles = true; % We should start to reading vector fields and advecting particles
         % Read from Fechas derrame and init proper number of particles. In a function
-        
+        spillData.splitByTimeStep(modelConfig, currDay);
     end
 
     for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
         if advectParticles 
+            % Add the proper number of particles for this time step
+            Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour)
+
             %sprintf('---- hour %d -----',currHour)
             VF = VF.readUV( modelConfig.timeStep, currHour, currDay);
             % Advect particles
             % Example for finding specific particles
             % findobj(particles, 'component',1)
         end
-
-
     end
     sprintf('---- Day %d -----',currDay)
 end

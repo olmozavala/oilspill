@@ -11,5 +11,6 @@ inputFolder = '/home/olmozavala/Desktop/PETROLEO_NEW';
 addpath(inputFolder) 
 addpath('./lib') 
 addpath('./lib/model') 
+addpath('./lib/external') 
 
 mkdir(outputFolder)

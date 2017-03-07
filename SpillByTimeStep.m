@@ -1,18 +1,12 @@
 classdef SpillByTimeStep
    properties
-      % Dias julianos en los que hubo derrame de petroleo
-        decay.evaporate
-        decay.biodeg
-        decay.burned
-        decay.collected
+        decay.evaporate % Indicates how many particles should be evaporated in each time step
+        decay.biodeg    % Indicates how many particles should be biodegraded in each time step
+        decay.burned    % Indicates how many particles should be burned in each time step
+        decay.collected % Indicates how many particles should be collected in each time step
+        particles.init % array indicating how many particles should be initialized in each time step for every depth
    end
-	methods
-	   function obj = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB)
-            obj.dates = FechasDerrame;
-            obj.barrels = SurfaceOil;
-            obj.VBU = VBU;
-            obj.VE = VE;
-            obj.VNW = VNW;
-	   end
-	end
+    methods
+
+    end
 end

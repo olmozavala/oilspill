@@ -2,6 +2,7 @@ classdef SpillInfo
    properties
       startDate % Start date of the simulation in julian dates
       endDate   % End date of the simulation in julian dates
+      year % Year of the start of the simulation
       lat       % Latitude of the spill
       lon        % Longitude of the spill
       depths    % Array of depths to be used
@@ -9,6 +10,7 @@ classdef SpillInfo
       subSurfaceFraction % Array with the fraction of oil spilled at each subsurface depth
       decay
       timeStep   % The time step is in hours and should be exactly divided by 24
+      initPartSize % How big does we initalize the vector size of particles lats, lons, etc
    end
    % TODO constructor that initializes all these fields and validates the input
 end
