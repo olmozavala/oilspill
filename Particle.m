@@ -11,7 +11,7 @@ classdef Particle < handle
       status % String A String that indicates the status of the particle. Each model should define it
    end
 	methods
-	   function obj = Particle(startDate, initSize, component, lat, lon)
+	   function obj = Particle(startDate, initSize, component, lat, lon, depth)
             obj.dates = cell(initSize);
             obj.lats = zeros(initSize);
             obj.lons = zeros(initSize);
@@ -24,6 +24,7 @@ classdef Particle < handle
             obj.component = component;
             obj.lats(1) = lat;
             obj.lons(1) = lon;
+            obj.depths(1) = depth;
 	   end
 	end
 end

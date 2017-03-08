@@ -10,6 +10,8 @@ classdef VectorFields
       VWT2 % V (wind) variable for next time
       currHour % Current hour of the model
       currDay % Current day of the model
+      LAT % Latitude meshgrid of the currents
+      LON % Longitude meshgrid of the currents
    end
 	methods
 	   function obj = VectorFields(currHour)
@@ -28,6 +30,7 @@ classdef VectorFields
             windFileNum = floor(modelHour/fixedWindDeltaT)+1;
             windFileT2Num = ceil( (modelHour + eps)/fixedWindDeltaT)+1;
 
+            % These variables indicate if we have to read new files   
             readWind = false;
             readWindT2 = false;
             readOcean = false;
@@ -35,6 +38,11 @@ classdef VectorFields
             readNextDayWind = false;
 
             idx_depth_1  = 10;
+
+            % Create the file names 
+            readOceanFile = [oceanInputFolder,oceanFilePrefix,sprintf('%03d',modelDay),'_00_3z.nc'];
+            readOceanFileT2 = [oceanInputFolder,oceanFilePrefix,sprintf('%03d',modelDay+1),'_00_3z.nc'];
+            readWindFile = [atmInputFolder, atmFilePrefix,num2str(modelDay),'_',num2str(windFileNum),'.nc'];
             
             % Verify the first time we get data
             if modelHour == 0 && obj.currDay == -1
@@ -43,6 +51,11 @@ classdef VectorFields
                 readWindT2 = true;
                 readOcean = true;
                 readOceanT2 = true;
+
+                % Read Lat and Lon from files and create meshgrids for currents and wind
+                lat = double(ncread(readOceanFile,'Latitude'));
+                lon = double(ncread(readOceanFile,'Longitude'));
+                [obj.LON, obj.LAT] = meshgrid(lon,lat);
             else
                 % Verify we haven't increase the file name
                 if floor(modelHour/fixedWindDeltaT)~= floor(obj.currHour/fixedWindDeltaT)
@@ -62,12 +75,6 @@ classdef VectorFields
                     obj.V = obj.VT2;
                 end
             end
-
-
-            % Reading data
-            readOceanFile = [oceanInputFolder,oceanFilePrefix,sprintf('%03d',modelDay),'_00_3z.nc'];
-            readOceanFileT2 = [oceanInputFolder,oceanFilePrefix,sprintf('%03d',modelDay+1),'_00_3z.nc'];
-            readWindFile = [atmInputFolder, atmFilePrefix,num2str(modelDay),'_',num2str(windFileNum),'.nc'];
 
             % Verify if we need to read the winds for the next day or the current day
             if readNextDayWind
