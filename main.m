@@ -6,7 +6,7 @@ addLocalPaths()
 modelConfig = SpillInfo;
 
 modelConfig.startDate = datetime(2010,05,01);
-modelConfig.endDate =  datetime(2010,05,02);
+modelConfig.endDate =  datetime(2010,12,02);
 modelConfig.lat= 28;
 modelConfig.lon = -88;%258
 modelConfig.depths = [0 300 1000]; 
@@ -16,7 +16,7 @@ modelConfig.components = [[0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3]; ...
 
 modelConfig.subSurfaceFraction = [1/3,2/3];
 modelConfig.timeStep = 2; % 6 Hours time step
-modelConfig.initPartSize = 100; % Initial size of particles vector array of lats, lons, etc.
+modelConfig.initPartSize = 10*(24/modelConfig.timeStep); % Initial size of particles vector array of lats, lons, etc.
 modelConfig.decay.evaporate = 1;
 modelConfig.decay.biodeg = 1;
 modelConfig.decay.burned = 1;
@@ -54,7 +54,7 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
     tic
     for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
 
-        sprintf('---- Hour %d -----',currHour)
+        %sprintf('---- Hour %d -----',currHour)
 
         % Computes the current date from the currentHour and currentDay
         currDate = datenum(modelConfig.startDate.Year-1, 12, 31, currHour, 0, 0) + currDay;
