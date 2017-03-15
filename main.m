@@ -5,11 +5,13 @@ addLocalPaths()
 
 modelConfig = SpillInfo;
 
-modelConfig.startDate = datetime(2010,05,01);
-modelConfig.endDate =  datetime(2010,12,02);
+modelConfig.startDate = datetime(2010,05,01); % Year, month and day
+modelConfig.endDate =  datetime(2010,08,02);
 modelConfig.lat= 28;
 modelConfig.lon = -88;%258
 modelConfig.depths = [0 300 1000]; 
+% How many barrels of oil are we goin to simulate one particle. 
+modelConfig.barrelsPerParticle = 1000;
 modelConfig.components = [[0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.3]; ...
                           [0.0 0.0 0.0 0.1 0.1 0.1 0.2 0.5]; ...
                           [0.0 0.0 0.0 0.0 0.0 0.1 0.2 0.7]];

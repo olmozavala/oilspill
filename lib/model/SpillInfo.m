@@ -11,6 +11,7 @@ classdef SpillInfo
       decay
       timeStep   % The time step is in hours and should be exactly divided by 24
       initPartSize % How big does we initalize the vector size of particles lats, lons, etc
+      barrelsPerParticle % How many barrels does a particle represent
    end
    % TODO constructor that initializes all these fields and validates the input
 end

@@ -24,7 +24,7 @@ classdef OilSpillData
 
 	   function obj = splitByTimeStep(obj, modelConfig, currDay)
 
-            barrelsPerParticle = 1000; % How many barrels does a particle represent
+            barrelsPerParticle = modelConfig.barrelsPerParticle;
             
             currDateIdx = find(obj.dates == currDay);
 
