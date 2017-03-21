@@ -11,7 +11,7 @@ modelConfig                    = SpillInfo;
 modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
-modelConfig.endDate            = datetime(2010,04,30); % Year, month, day
+modelConfig.endDate            = datetime(2010,04,24); % Year, month, day
 modelConfig.timeStep           = 2;    % 6 Hours time step
 modelConfig.barrelsPerParticle = 1000; % How many barrels of oil are we goin to simulate one particle.
 modelConfig.depths             = [0 3 1100];
@@ -26,6 +26,9 @@ modelConfig.decay.collected    = 1;
 modelConfig.decay.byComponent  = threshold(95,[4, 8, 12, 16, 20, 24, 28, 32],modelConfig.timeStep);
 modelConfig.initPartSize = 10*(24/modelConfig.timeStep); % Initial size of particles vector array of lats, lons, etc.
 
+atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files
+oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
+
 % La funcion cantidades_por_dia determina las distintas cantidades de petroleo
 % a partir de los datos del derrame en el archivo "datos_derrame.csv"
 % FechasDerrame      = Dias julianos en los que hubo derrame de petroleo
@@ -36,7 +39,7 @@ modelConfig.initPartSize = 10*(24/modelConfig.timeStep); % Initial size of parti
 % VDB                = Cantidad de petroleo dispersado en la sub-superficie
 [FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB] = cantidades_por_dia;
 spillData          = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB);
-VF                 = VectorFields(0);
+VF                 = VectorFields(0, atmFilePrefix, oceanFilePrefix);
 advectingParticles = false;          % Indicate when should we start reading the UV fields
 Particles          = Particle.empty; % Start the array of particles empty
 

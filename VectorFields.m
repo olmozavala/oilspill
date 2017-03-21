@@ -12,20 +12,20 @@ classdef VectorFields
       currDay % Current day of the model
       LAT % Latitude meshgrid of the currents
       LON % Longitude meshgrid of the currents
+	atmFilePrefix % File prefix for the atmospheric netcdf files
+	oceanFilePrefix  % File prefix for the ocean netcdf files
    end
 	methods
-	   function obj = VectorFields(currHour)
+	   function obj = VectorFields(currHour, atmFilePrefix, oceanFilePrefix)
 			obj.currHour = currHour;
 			obj.currDay = -1;
+                  obj.atmFilePrefix = atmFilePrefix;
+                  obj.oceanFilePrefix = oceanFilePrefix;
 	   end
          function obj = readUV(obj, modelHour, modelDay)
 
             eps = .01; % Modified epsilon to make it work with ceil
             fixedWindDeltaT = 6; % This is the delta T for the wind fields
-            atmInputFolder  = '/home/olmozavala/Desktop/PETROLEO_OUT/'; % Input folder where de atm data is stored
-		oceanInputFolder  = '/home/olmozavala/Desktop/PETROLEO_OUT/'; % Input folder where de oceanic data is stored
-		atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files
-		oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
 
             windFileNum = floor(modelHour/fixedWindDeltaT)+1;
             windFileT2Num = ceil( (modelHour + eps)/fixedWindDeltaT)+1;
@@ -40,9 +40,9 @@ classdef VectorFields
             idx_depth_1  = 10;
 
             % Create the file names 
-            readOceanFile = [oceanInputFolder,oceanFilePrefix,sprintf('%03d',modelDay),'_00_3z.nc'];
-            readOceanFileT2 = [oceanInputFolder,oceanFilePrefix,sprintf('%03d',modelDay+1),'_00_3z.nc'];
-            readWindFile = [atmInputFolder, atmFilePrefix,num2str(modelDay),'_',num2str(windFileNum),'.nc'];
+            readOceanFile = [obj.oceanFilePrefix,sprintf('%03d',modelDay),'_00_3z.nc'];
+            readOceanFileT2 = [obj.oceanFilePrefix,sprintf('%03d',modelDay+1),'_00_3z.nc'];
+            readWindFile = [obj.atmFilePrefix,num2str(modelDay),'_',num2str(windFileNum),'.nc'];
             
             % Verify the first time we get data
             if modelHour == 0 && obj.currDay == -1
@@ -78,11 +78,11 @@ classdef VectorFields
 
             % Verify if we need to read the winds for the next day or the current day
             if readNextDayWind
-                readWindFileT2 = [atmInputFolder, atmFilePrefix,num2str(modelDay+1),'_1.nc'];
+                readWindFileT2 = [obj.atmFilePrefix,num2str(modelDay+1),'_1.nc'];
                 obj.UW = obj.UWT2;
                 obj.VW = obj.VWT2;
             else
-                readWindFileT2 = [atmInputFolder, atmFilePrefix,num2str(modelDay),'_',num2str(windFileT2Num),'.nc'];
+                readWindFileT2 = [obj.atmFilePrefix,num2str(modelDay),'_',num2str(windFileT2Num),'.nc'];
             end
 
             % Verify if we need to read the winds for the current day
