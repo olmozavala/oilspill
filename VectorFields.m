@@ -18,7 +18,7 @@ classdef VectorFields
 			obj.currHour = currHour;
 			obj.currDay = -1;
 	   end
-         function obj = readUV(obj, fixedWindDeltaT, modelHour, modelDay)
+         function obj = readUV(obj, modelHour, modelDay)
 
             eps = .01; % Modified epsilon to make it work with ceil
             fixedWindDeltaT = 6; % This is the delta T for the wind fields
@@ -115,3 +115,4 @@ classdef VectorFields
          end
 	end
   end
+
