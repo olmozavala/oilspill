@@ -28,6 +28,8 @@ modelConfig.initPartSize = 10*(24/modelConfig.timeStep); % Initial size of parti
 
 atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files
 oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
+uvar = 'U';
+vvar = 'V';
 
 % La funcion cantidades_por_dia determina las distintas cantidades de petroleo
 % a partir de los datos del derrame en el archivo "datos_derrame.csv"
@@ -39,7 +41,7 @@ oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
 % VDB                = Cantidad de petroleo dispersado en la sub-superficie
 [FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB] = cantidades_por_dia;
 spillData          = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB);
-VF                 = VectorFields(0, atmFilePrefix, oceanFilePrefix);
+VF                 = VectorFields(0, atmFilePrefix, oceanFilePrefix, uvar, vvar);
 advectingParticles = false;          % Indicate when should we start reading the UV fields
 Particles          = Particle.empty; % Start the array of particles empty
 

@@ -14,13 +14,17 @@ classdef VectorFields
       LON % Longitude meshgrid of the currents
 	atmFilePrefix % File prefix for the atmospheric netcdf files
 	oceanFilePrefix  % File prefix for the ocean netcdf files
+      uvar
+      vvar
    end
 	methods
-	   function obj = VectorFields(currHour, atmFilePrefix, oceanFilePrefix)
+	   function obj = VectorFields(currHour, atmFilePrefix, oceanFilePrefix, uvar, vvar)
 			obj.currHour = currHour;
 			obj.currDay = -1;
                   obj.atmFilePrefix = atmFilePrefix;
                   obj.oceanFilePrefix = oceanFilePrefix;
+                  obj.uvar = uvar;
+                  obj.vvar = vvar;
 	   end
          function obj = readUV(obj, modelHour, modelDay)
 
