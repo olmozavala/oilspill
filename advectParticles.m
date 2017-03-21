@@ -5,7 +5,7 @@ R=6371e+03;                 % Radio medio de la tierra (Gill)
 
 % Get live particles 
 LiveParticles = findobj(Particles, 'isAlive',true);
-numParticles = length(LiveParticles)
+numParticles = length(LiveParticles);
 
 % Reading all the positions for live particles
 latP = zeros(numParticles);
@@ -52,6 +52,7 @@ for idxPart = 1:length(LiveParticles)
     particle.currTimeStep = particle.currTimeStep + 1;
     particle.lats(particle.currTimeStep) = newLatP(idxPart);
     particle.lons(particle.currTimeStep) = newLonP(idxPart);
+    particle.depths(particle.currTimeStep) = particle.depths(particle.currTimeStep-1);
 
     % Update the next date
     particle.dates{particle.currTimeStep} = currDate;

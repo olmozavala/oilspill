@@ -12,10 +12,10 @@ classdef Particle < handle
    end
 	methods
 	   function obj = Particle(startDate, initSize, component, lat, lon, depth)
-            obj.dates = cell(initSize);
-            obj.lats = zeros(initSize);
-            obj.lons = zeros(initSize);
-            obj.depths = zeros(initSize);
+            obj.dates = cell(initSize,1);
+            obj.lats = zeros(initSize,1);
+            obj.lons = zeros(initSize,1);
+            obj.depths = zeros(initSize,1);
             obj.dates{1} = startDate;
             obj.lifeTime = 0;
             obj.currTimeStep = 1;
