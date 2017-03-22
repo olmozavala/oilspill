@@ -1,4 +1,4 @@
-classdef VectorFields
+classdef VectorVieldsHycom
    properties
       U % U variable for current time
       V % V variable for current time
@@ -17,7 +17,7 @@ classdef VectorFields
       uvar
       vvar end
 	methods
-	   function obj = VectorFields(currHour, atmFilePrefix, oceanFilePrefix, uvar, vvar)
+	   function obj = VectorVieldsHycom(currHour, atmFilePrefix, oceanFilePrefix, uvar, vvar)
 			obj.currHour = currHour;
 			obj.currDay = -1;
                   obj.atmFilePrefix = atmFilePrefix;
