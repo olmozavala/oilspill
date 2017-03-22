@@ -104,14 +104,14 @@ classdef VectorFields
             % Verify if we need to read the currents of the current day
             if readOcean
                 %readOceanFile
-                obj.U = double(ncread(readOceanFile,'U',[1, 1, idx_depth_1],[Inf, Inf, 1])');
-                obj.V = double(ncread(readOceanFile,'V',[1, 1, idx_depth_1],[Inf, Inf, 1])');
+                obj.U = double(ncread(readOceanFile,obj.uvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
+                obj.V = double(ncread(readOceanFile,obj.vvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
             end
             % Verify if we need to read the currents of the next day
             if readOceanT2
                 %readOceanFileT2
-                obj.UT2 = double(ncread(readOceanFileT2,'U',[1, 1, idx_depth_1],[Inf, Inf, 1])');
-                obj.VT2 = double(ncread(readOceanFileT2,'V',[1, 1, idx_depth_1],[Inf, Inf, 1])');
+                obj.UT2 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
+                obj.VT2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
             end
 
             obj.currDay = modelDay;
