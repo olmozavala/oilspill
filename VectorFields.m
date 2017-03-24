@@ -12,11 +12,15 @@ classdef VectorFields
       currDay % Current day of the model
       LAT % Latitude meshgrid of the currents
       LON % Longitude meshgrid of the currents
+      depths % Array of depths corresponding to U and V
+      depthsMinMax % Array of indexes corresponding to the minumum and maximum depth of the particles
+      depthsIndx% Array of indexes corresponding to closest indexes at each depth of the particles
 	atmFilePrefix % File prefix for the atmospheric netcdf files
 	oceanFilePrefix  % File prefix for the ocean netcdf files
-      uvar
-      vvar end
-	methods
+      uvar % Is the name of the variable U inside the netCDF file
+      vvar % Is the name of the variable V inside the netCDF file
+  end
+  methods
 	   function obj = VectorFields(currHour, atmFilePrefix, oceanFilePrefix, uvar, vvar)
 			obj.currHour = currHour;
 			obj.currDay = -1;
@@ -25,7 +29,7 @@ classdef VectorFields
                   obj.uvar = uvar;
                   obj.vvar = vvar;
 	   end
-         function obj = readUV(obj, modelHour, modelDay)
+         function obj = readUV(obj, modelHour, modelDay, modelConfig)
 
             eps = .01; % Modified epsilon to make it work with ceil
             fixedWindDeltaT = 6; % This is the delta T for the wind fields
@@ -40,8 +44,6 @@ classdef VectorFields
             readOceanT2 = false;
             readNextDayWind = false;
 
-            idx_depth_1  = 10;
-
             % Create the file names 
             readOceanFile = [obj.oceanFilePrefix,sprintf('%03d',modelDay),'_00_3z.nc'];
             readOceanFileT2 = [obj.oceanFilePrefix,sprintf('%03d',modelDay+1),'_00_3z.nc'];
@@ -55,9 +57,55 @@ classdef VectorFields
                 readOcean = true;
                 readOceanT2 = true;
 
-                % Read Lat and Lon from files and create meshgrids for currents and wind
+                % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
                 lat = double(ncread(readOceanFile,'Latitude'));
                 lon = double(ncread(readOceanFile,'Longitude'));
+                obj.depths = double(ncread(readOceanFile,'Depth'));
+                
+                % Setting the minimum and maximum indexes for the depths of the particles
+                % Setting the minimum index
+                [val, indx] = min(abs(obj.depths - modelConfig.depths(1)));
+                if val == 0
+                    obj.depthsMinMax(1) = indx;
+                else
+                    % Verify we are on the right side of the closest depth
+                    if (obj.depths(indx) - modelConfig.depths(1)) < 0
+                        obj.depthsMinMax(1) = indx;
+                    else
+                        obj.depthsMinMax(1) = max(indx-1,0);
+                    end
+                end
+                % Setting the Maximum index
+                [val, indx] = min(abs(obj.depths - modelConfig.depths(end)));
+                if val == 0
+                    obj.depthsMinMax(2) = indx;
+                else
+                    % Verify we are on the right side of the closest depth
+                    if (obj.depths(indx) - modelConfig.depths(1)) > 0
+                        obj.depthsMinMax(2) = indx;
+                    else
+                        obj.depthsMinMax(2) = min(indx+1,length(obj.depths));
+                    end
+                end
+
+                % Assigning the closest indexes for each depth
+                currIndx = 1;
+                for currDepth= modelConfig.depths
+                    [val, indx] = min(abs(obj.depths - currDepth));
+                    if val == 0
+                        % For this depth we only need one index, because is the exact depth
+                        obj.depthsIndx(currIndx,:) = [indx, indx];
+                    else
+                        % Verify we are on the right side of the closest depth
+                        if (obj.depths(indx) - currDepth) > 0
+                            obj.depthsIndx(currIndx,:) = [max(indx-1,0), indx];
+                        else
+                            obj.depthsIndx(currIndx,:) = [indx, min(indx+1,obj.depthsMinMax(2)) ];
+                        end
+                    end
+                    currIndx = currIndx + 1;
+                end
+
                 [obj.LON, obj.LAT] = meshgrid(lon,lat);
             else
                 % Verify we haven't increase the file name
@@ -103,14 +151,14 @@ classdef VectorFields
             % Verify if we need to read the currents of the current day
             if readOcean
                 %readOceanFile
-                obj.U = double(ncread(readOceanFile,obj.uvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
-                obj.V = double(ncread(readOceanFile,obj.vvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
+                obj.U = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                obj.V = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
             end
             % Verify if we need to read the currents of the next day
             if readOceanT2
                 %readOceanFileT2
-                obj.UT2 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
-                obj.VT2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, idx_depth_1],[Inf, Inf, 1])');
+                obj.UT2 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                obj.VT2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
             end
 
             obj.currDay = modelDay;

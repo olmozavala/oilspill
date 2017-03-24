@@ -11,6 +11,7 @@ classdef SpillInfo
       subSurfaceFraction % Array with the fraction of oil spilled at each subsurface depth
       decay
       initPartSize       % How big does we initalize the vector size of particles lats, lons, etc
+      totComponents      % Total number of components
    end
    % TODO constructor that initializes all these fields and validates the input
 end

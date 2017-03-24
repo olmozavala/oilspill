@@ -1,6 +1,7 @@
 % In this new version, the objective is to make the code as efficient as possible
 close all; clear; clc; format compact
 
+tic()
 addLocalPaths()
 
 modelConfig = SpillInfo;
@@ -11,13 +12,15 @@ modelConfig                    = SpillInfo;
 modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
-modelConfig.endDate            = datetime(2010,04,24); % Year, month, day
-modelConfig.timeStep           = 2;    % 6 Hours time step
-modelConfig.barrelsPerParticle = 1000; % How many barrels of oil are we goin to simulate one particle.
-modelConfig.depths             = [0 3 1100];
-modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05];...
-                                  [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05];...
-                                  [0.05 0.05 0.05 0.05 0.10 0.20 0.20 0.30]];
+modelConfig.endDate            = datetime(2010,04,26); % Year, month, day
+modelConfig.timeStep           = 6;    % 6 Hours time step
+modelConfig.barrelsPerParticle = 10; % How many barrels of oil are we goin to simulate one particle.
+modelConfig.depths             = [0 100 1000];
+modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05],
+                                    [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0],
+                                    [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
+                                    
+modelConfig.totComponents      = 8;
 modelConfig.subSurfaceFraction = [1/2,1/2];
 modelConfig.decay.evaporate    = 1;
 modelConfig.decay.biodeg       = 1;
@@ -61,7 +64,7 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
             Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
 
             %sprintf('---- hour %d -----',currHour)
-            VF = VF.readUV( currHour, currDay);
+            VF = VF.readUV( currHour, currDay, modelConfig);
 	    	% Advect particles
 		Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_dif);
 		% Degrading particles
@@ -70,5 +73,5 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
     end
     sprintf('---- Day %d -----',currDay)
 end
-
-plotParticles(Particles)
+toc
+%plotParticles(Particles)
