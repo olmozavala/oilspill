@@ -5,20 +5,26 @@ function Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_
     % Get live particles 
     LiveParticles = findobj(Particles, 'isAlive',true);
 
+    % Get particles depth
+    particleDepths = [LiveParticles.lastDepth];
+
+    % All lats and lons
+    allLat = [LiveParticles.lastLat];
+    allLon = [LiveParticles.lastLon];
+
     % Iterate over the different depths
     dIndx= 1; % Current depth index
     for depth = modelConfig.depths
-        % Get particles depth
-        SameDepthParticles = findobj(LiveParticles, 'depths',depth);
-        numParticles = length(SameDepthParticles);
 
-        % Reading all the positions for particles with the same depth
-        latP = zeros(numParticles);
-        lonP = zeros(numParticles);
+        % Get the index for the particles at this depth
+        currPartIndex = particleDepths == depth;
+        % Get the corresponding indexes of the lived particles
+        originalIndexes = find(currPartIndex);
+        numParticles = sum(currPartIndex);
 
         % Get current particle
-        latP = [SameDepthParticles.lats];
-        lonP = [SameDepthParticles.lons];
+        latP = allLat(currPartIndex);
+        lonP = allLat(currPartIndex);
 
         % Get the depth indices for the current particles
         currDepthIndx = VF.depthsIndx(dIndx,:);
@@ -66,15 +72,20 @@ function Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_
         % Move particles to dt
         newLatP= latP + (DeltaT*VhalfPart)*(180/(R*pi));
         newLonP= lonP + ((DeltaT*UhalfPart)*(180/(R*pi))).*cosd(latP);
+
         % Iterate over the particles and add the new positions
-        for idxPart = 1:length(SameDepthParticles)
+        for idxPart = 1:length(numParticles)
             % Get current particle
-            particle = SameDepthParticles(idxPart);
+            particle = LiveParticles(originalIndexes(idxPart));
             % Add in one the current time step of the particle
             particle.currTimeStep = particle.currTimeStep + 1;
             particle.lats(particle.currTimeStep) = newLatP(idxPart);
             particle.lons(particle.currTimeStep) = newLonP(idxPart);
             particle.depths(particle.currTimeStep) = particle.depths(particle.currTimeStep-1);
+            particle.lastDepth = particle.lastDepth;% If we would like to change the depth
+
+            particle.lastLat = newLatP(idxPart);
+            particle.lastLon = newLonP(idxPart);
 
             % Update the next date
             particle.dates{particle.currTimeStep} = currDate;

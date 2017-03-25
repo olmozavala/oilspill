@@ -9,6 +9,9 @@ classdef Particle < handle
       currTimeStep  % int The current time step the particle is. It start at 1 and increases by one for each delta t
       isAlive % Bool Indicates if the particle is still alive
       status % String A String that indicates the status of the particle. Each model should define it
+      lastDepth % Float that indicates the last depth of the particle
+      lastLat % Float that indicates the last lat of the particle
+      lastLon % Float that indicates the last lat of the particle
    end
 	methods
 	   function obj = Particle(startDate, initSize, component, lat, lon, depth)
@@ -22,9 +25,12 @@ classdef Particle < handle
             obj.isAlive = true;
             obj.status = 'M';
             obj.component = component;
-            obj.lats(1) = lat;
-            obj.lons(1) = lon;
+            obj.lats(1) = lat+rand;
+            obj.lons(1) = lon+rand;
             obj.depths(1) = depth;
+            obj.lastDepth = depth;
+            obj.lastLat = obj.lats(1);
+            obj.lastLon=  obj.lats(2);
 	   end
 	end
 end
