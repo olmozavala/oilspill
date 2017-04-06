@@ -34,7 +34,7 @@ classdef Particle < handle
 	   end
 	end
 end
-      % For the oilspill we use: 
+      % For the oilspill we use (in the status of the particle): 
       %         'M' Moving and alive
       %         'L' In land
       %         'B' Burned
