@@ -12,12 +12,11 @@ modelConfig                    = SpillInfo;
 modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
-modelConfig.endDate            = datetime(2010,12,10); % Year, month, day
+modelConfig.endDate            = datetime(2010,05,10); % Year, month, day
 modelConfig.timeStep           = 6;    % 6 Hours time step
 modelConfig.barrelsPerParticle = 10; % How many barrels of oil are we goin to simulate one particle.
 modelConfig.depths             = [0 100 1000];
-modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05],
-                                    [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0],
+modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0];...
                                     [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
                                     
 modelConfig.totComponents      = 8;
@@ -74,4 +73,6 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
     sprintf('---- Day %d -----',currDay)
 end
 toc
-%plotParticles(Particles)
+
+%% Plotting the results
+plotParticles(Particles)
