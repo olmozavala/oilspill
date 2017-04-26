@@ -1,9 +1,10 @@
-function Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_dif)
+function Particles = advectParticles(VF, modelConfig, Particles, currTime, turb_dif)
     DeltaT = modelConfig.timeStep*3600; % Move DT to seconds
     R=6371e+03;                 % Radio medio de la tierra (Gill)
 
     % Get live particles 
     LiveParticles = findobj(Particles, 'isAlive',true);
+    sprintf('---- Live Particles %d -----',length(LiveParticles))
 
     % Get particles depth
     particleDepths = [LiveParticles.lastDepth];
@@ -24,10 +25,13 @@ function Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_
 
         % Get current particle
         latP = allLat(currPartIndex);
-        lonP = allLat(currPartIndex);
+        lonP = allLon(currPartIndex);
 
         % Get the depth indices for the current particles
         currDepthIndx = VF.depthsIndx(dIndx,:);
+
+        % In this case the particles are exactly in one depth
+        % of the currents file
         if currDepthIndx(1) == currDepthIndx(2)
             U = VF.U(:,:,currDepthIndx(1))';
             V = VF.V(:,:,currDepthIndx(1))';
@@ -88,7 +92,7 @@ function Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_
             particle.lastLon = newLonP(idxPart);
 
             % Update the next date
-            particle.dates{particle.currTimeStep} = currDate;
+            particle.dates{particle.currTimeStep} = currTime;
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
         end

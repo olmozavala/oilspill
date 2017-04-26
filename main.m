@@ -1,7 +1,7 @@
 % In this new version, the objective is to make the code as efficient as possible
 close all; clear; clc; format compact
 
-tic()
+%tic()
 addLocalPaths()
 
 modelConfig = SpillInfo;
@@ -12,7 +12,7 @@ modelConfig                    = SpillInfo;
 modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
-modelConfig.endDate            = datetime(2010,05,10); % Year, month, day
+modelConfig.endDate            = datetime(2010,07,25); % Year, month, day
 modelConfig.timeStep           = 6;    % 6 Hours time step
 modelConfig.barrelsPerParticle = 10; % How many barrels of oil are we goin to simulate one particle.
 modelConfig.depths             = [0 100 1000];
@@ -32,6 +32,7 @@ atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files
 oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
 uvar = 'U';
 vvar = 'V';
+visualize = true; % Indicates if we want to visualize the results as the model runs.
 
 % La funcion cantidades_por_dia determina las distintas cantidades de petroleo
 % a partir de los datos del derrame en el archivo "datos_derrame.csv"
@@ -47,6 +48,16 @@ VF                 = VectorFields(0, atmFilePrefix, oceanFilePrefix, uvar, vvar)
 advectingParticles = false;          % Indicate when should we start reading the UV fields
 Particles          = Particle.empty; % Start the array of particles empty
 
+%  Initialize the figure for visualization of the particles
+if visualize
+    DrawGulfOfMexico();
+     %% Animating particles
+    view(-10.5,18) % Define the angle of view
+    axis tight;
+    set(gca,'BoxStyle','full','Box','on')
+end
+
+FinalParticles = {};
 for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(modelConfig.endDate))
 
     % Verify we have some data in this day
@@ -57,7 +68,8 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
     end
 
     for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
-	  currDate = datenum(modelConfig.startDate.Year-1, 12, 31, currHour, 0, 0) + currDay;
+	  currTime = datenum(modelConfig.startDate.Year-1, 12, 31, currHour, 0, 0) + currDay;
+	  nextTime = datenum(modelConfig.startDate.Year-1, 12, 31, currHour+modelConfig.timeStep, 0, 0) + currDay;
         if advectingParticles
             % Add the proper number of particles for this time step
             Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
@@ -65,14 +77,27 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
             %sprintf('---- hour %d -----',currHour)
             VF = VF.readUV( currHour, currDay, modelConfig);
 	    	% Advect particles
-		Particles = advectParticles(VF, modelConfig, Particles, currDate, turb_dif);
+		Particles = advectParticles(VF, modelConfig, Particles, nextTime, turb_dif);
 		% Degrading particles
 		Particles = oilDegradation(Particles, modelConfig, spillData);
         end
+        %  Visualize the current step
+        if visualize
+            plotParticlesSingleTime(Particles)
+        end
     end
-    sprintf('---- Day %d -----',currDay)
+
+    % Every 5 days we move away the non active particles.
+    if mod(currDay,5) == 0
+        NonLiveParticles = findobj(Particles, 'isAlive',false);
+        FinalParticles = {FinalParticles,NonLiveParticles};
+        Particles = findobj(Particles, 'isAlive',true);
+    end
+
+    sprintf('---- Day %d -----', (currDay - datevec2doy(datevec(modelConfig.startDate))))
+    sprintf('---- Tot Particles %d -----',length(Particles))
 end
-toc
+%toc()
 
 %% Plotting the results
-plotParticles(Particles)
+%plotParticles(Particles, modelConfig.startDate, modelConfig.endDate, modelConfig.timeStep)

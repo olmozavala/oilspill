@@ -25,12 +25,12 @@ classdef Particle < handle
             obj.isAlive = true;
             obj.status = 'M';
             obj.component = component;
-            obj.lats(1) = lat+rand;
-            obj.lons(1) = lon+rand;
+            obj.lats(1) = lat+randn*.03;
+            obj.lons(1) = lon+randn*.03;
             obj.depths(1) = depth;
             obj.lastDepth = depth;
             obj.lastLat = obj.lats(1);
-            obj.lastLon=  obj.lats(2);
+            obj.lastLon=  obj.lons(1);
 	   end
 	end
 end

@@ -26,7 +26,8 @@ function particles = initParticles(particles, spillData, modelConfig, currDay, c
         for component = 1:totComp
             % Initializes the number of particles decided in the previous step
             for numPart = 0:particlesByDepth(depthIdx, component)
-                particles(idxPart) = Particle(startDate, modelConfig.initPartSize, component, modelConfig.lat, modelConfig.lon, modelConfig.depths(depthIdx));
+                particles(idxPart) = Particle(startDate, modelConfig.initPartSize, component, modelConfig.lat, modelConfig.lon, ...
+                                            modelConfig.depths(depthIdx));
                 idxPart = idxPart + 1;
             end
         end
