@@ -1,4 +1,4 @@
-function plotParticlesSingleTime(Particles, modelConfig, f)
+function plotParticlesSingleTime(Particles, modelConfig, f, currIter)
     hold on;
     %% Animating particles using streamline
 
@@ -9,10 +9,17 @@ function plotParticlesSingleTime(Particles, modelConfig, f)
     % Iterate over all the components
     for component = 1:modelConfig.totComponents
         currParticles = particleComponents == component;
-        scatter3([Particles(currParticles).lastLon], [Particles(currParticles).lastLat], ...
-                    -[Particles(currParticles).lastDepth],9,modelConfig.colorByComponent(component,:),'filled');
-        scatter3([Particles(currParticles).lastLon], [Particles(currParticles).lastLat], ...
-                    -[Particles(currParticles).lastDepth],9,modelConfig.colorByComponent(component,:),'filled');
+        if currIter == 0
+            f = scatter3([Particles(currParticles).lastLon], [Particles(currParticles).lastLat], ...
+                        -[Particles(currParticles).lastDepth],9,modelConfig.colorByComponent(component,:),'filled');
+            f.XDataSource = '[Particles(currParticles).lastLon]';
+            f.YDataSource = '[Particles(currParticles).lastLat]';
+            f.ZDataSource = '-[Particles(currParticles).lastDepth]';
+        else
+            refreshdata
+        end
+        %scatter3([Particles(currParticles).lastLon], [Particles(currParticles).lastLat], ...
+                    %-[Particles(currParticles).lastDepth],9,modelConfig.colorByComponent(component,:),'filled');
     end
 
     % Dead particles drawn in red color
@@ -20,13 +27,3 @@ function plotParticlesSingleTime(Particles, modelConfig, f)
     scatter3([deadParticles.lastLon], [deadParticles.lastLat], ...
                 -[deadParticles.lastDepth],9,'r','filled');
     drawnow
-
-    %totPart = length(Particles);
-    %ParticlesCell = {};
-    %pIdx = 1;
-%    for ii =  1:totPart'% Iterate over the particles
-%        pos = [Particles(ii).lastLon, Particles(ii).lastLat, -Particles(ii).lastDepth];
-%        ParticlesCell{ii} = pos;
-%    end
-%    streamparticles(ParticlesCell,length(ParticlesCell), 'Animate',0)
-%    drawnow

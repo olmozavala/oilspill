@@ -9,7 +9,7 @@ modelConfig                    = ModelConfig;
 modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
-modelConfig.endDate            = datetime(2010,06,26); % Year, month, day
+modelConfig.endDate            = datetime(2010,08,26); % Year, month, day
 modelConfig.timeStep           = 6;    % 6 Hours time step
 modelConfig.barrelsPerParticle = 100; % How many barrels of oil are we goin to simulate one particle.
 modelConfig.depths             = [0 100 1000];
@@ -17,7 +17,7 @@ modelConfig.depths             = [0 100 1000];
 modelConfig.totComponents      = 8;
 modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0];...
                                     [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
-modelConfig.colorByComponent   = colorGradient([0 1 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
+modelConfig.colorByComponent   = colorGradient([1 0 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
 
 
 modelConfig.windcontrib        = 0.035;   % Wind contribution
@@ -92,7 +92,32 @@ for currDay = startDay:endDay
         end
         %  Visualize the current step
         if visualize
-            plotParticlesSingleTime(Particles, modelConfig, f)
+            %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
+            LiveParticles = findobj(Particles, 'isAlive',true);
+            DeadParticles = findobj(Particles, 'isAlive',false);
+            if  currDay - startDay == 0
+                hold on
+                f = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
+                            -[LiveParticles.lastDepth],9,modelConfig.colorByComponent([LiveParticles.component],:),'filled');
+
+                %h = scatter3([DeadParticles.lastLon], [DeadParticles.lastLat], ...
+                            %-[DeadParticles.lastDepth],9,'r','filled');
+                f.XDataMode = 'manual';
+                h.XDataMode = 'manual';
+                drawnow
+            else
+                f.XData = [LiveParticles.lastLon];
+                f.YData = [LiveParticles.lastLat];
+                f.ZData = -[LiveParticles.lastDepth];
+                f.CData = modelConfig.colorByComponent([LiveParticles.component],:);
+
+                %h.XData = [DeadParticles.lastLon];
+                %h.YData = [DeadParticles.lastLat];
+                %h.ZData = -[DeadParticles.lastDepth];
+                refreshdata
+                drawnow
+            end
+
         end
         %pause(10)
     end
