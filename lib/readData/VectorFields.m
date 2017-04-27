@@ -8,6 +8,10 @@ classdef VectorFields
       VW % V (wind) variable for current time
       UWT2 % U (wind) variable for next time
       VWT2 % V (wind) variable for next time
+      UWR % U (wind rotated) variable for current time
+      VWR % V (wind rotated) variable for current time
+      UWRT2 % U (wind rotated) variable for current time
+      VWRT2 % V (wind rotated) variable for current time
       currHour % Current hour of the model
       currDay % Current day of the model
       LAT % Latitude meshgrid of the currents
@@ -130,8 +134,11 @@ classdef VectorFields
             % Verify if we need to read the winds for the next day or the current day
             if readNextDayWind
                 readWindFileT2 = [obj.atmFilePrefix,num2str(modelDay+1),'_1.nc'];
+                % We copy the what was the 'next day' into current UV
                 obj.UW = obj.UWT2;
                 obj.VW = obj.VWT2;
+                obj.UWR = obj.UWRT2;
+                obj.VWR = obj.VWRT2;
             else
                 readWindFileT2 = [obj.atmFilePrefix,num2str(modelDay),'_',num2str(windFileT2Num),'.nc'];
             end
@@ -141,12 +148,14 @@ classdef VectorFields
                 %readWindFile
                 obj.UW = double(ncread(readWindFile,'U_Viento'));
                 obj.VW = double(ncread(readWindFile,'V_Viento'));
+                [obj.UWR, obj.VWR] = rotangle(obj.UW, obj.VW);
             end
             % Verify if we need to read the winds for the next day
             if readWindT2
                 %readWindFileT2
                 obj.UWT2 = double(ncread(readWindFileT2,'U_Viento'));
                 obj.VWT2 = double(ncread(readWindFileT2,'U_Viento'));
+                [obj.UWRT2, obj.VWRT2] = rotangle(obj.UWT2, obj.VWT2);
             end
             % Verify if we need to read the currents of the current day
             if readOcean

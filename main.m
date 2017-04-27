@@ -4,22 +4,26 @@ close all; clear; clc; format compact
 %tic()
 addLocalPaths()
 
-modelConfig = SpillInfo;
-turb_dif = 1;
-wind_factor = 0.035 ;
 
-modelConfig                    = SpillInfo;
+modelConfig                    = ModelConfig;
 modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
-modelConfig.endDate            = datetime(2010,07,25); % Year, month, day
+modelConfig.endDate            = datetime(2010,06,26); % Year, month, day
 modelConfig.timeStep           = 6;    % 6 Hours time step
-modelConfig.barrelsPerParticle = 10; % How many barrels of oil are we goin to simulate one particle.
+modelConfig.barrelsPerParticle = 100; % How many barrels of oil are we goin to simulate one particle.
 modelConfig.depths             = [0 100 1000];
+
+modelConfig.totComponents      = 8;
 modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0];...
                                     [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
+modelConfig.colorByComponent   = colorGradient([0 1 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
+
+
+modelConfig.windcontrib        = 0.035;   % Wind contribution
+modelConfig.turbulentDiff      = 1;       % Turbulent diffusion
+modelConfig.diffusion          = .005;    % Variance (in degrees) for random diffusion when initializing particles 
                                     
-modelConfig.totComponents      = 8;
 modelConfig.subSurfaceFraction = [1/2,1/2];
 modelConfig.decay.evaporate    = 1;
 modelConfig.decay.biodeg       = 1;
@@ -50,15 +54,20 @@ Particles          = Particle.empty; % Start the array of particles empty
 
 %  Initialize the figure for visualization of the particles
 if visualize
+    f=figure 
     DrawGulfOfMexico();
      %% Animating particles
-    view(-10.5,18) % Define the angle of view
+    view(-10.5,28) % Define the angle of view
+    zoom(2)
     axis tight;
     set(gca,'BoxStyle','full','Box','on')
 end
 
 FinalParticles = {};
-for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(modelConfig.endDate))
+startDay = datevec2doy(datevec(modelConfig.startDate));
+endDay = datevec2doy(datevec(modelConfig.endDate))
+for currDay = startDay:endDay
+    sprintf('---- Day %d -----', (currDay - startDay))
 
     % Verify we have some data in this day
     if any(FechasDerrame == currDay)
@@ -68,8 +77,8 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
     end
 
     for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
-	  currTime = datenum(modelConfig.startDate.Year-1, 12, 31, currHour, 0, 0) + currDay;
-	  nextTime = datenum(modelConfig.startDate.Year-1, 12, 31, currHour+modelConfig.timeStep, 0, 0) + currDay;
+	  currTime = toSerialDate(modelConfig.startDate.Year, currHour, currDay);
+	  nextTime = toSerialDate(modelConfig.startDate.Year, currHour+modelConfig.timeStep, currDay);
         if advectingParticles
             % Add the proper number of particles for this time step
             Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
@@ -77,14 +86,15 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
             %sprintf('---- hour %d -----',currHour)
             VF = VF.readUV( currHour, currDay, modelConfig);
 	    	% Advect particles
-		Particles = advectParticles(VF, modelConfig, Particles, nextTime, turb_dif);
+		Particles = advectParticles(VF, modelConfig, Particles, nextTime);
 		% Degrading particles
 		Particles = oilDegradation(Particles, modelConfig, spillData);
         end
         %  Visualize the current step
         if visualize
-            plotParticlesSingleTime(Particles)
+            plotParticlesSingleTime(Particles, modelConfig, f)
         end
+        %pause(10)
     end
 
     % Every 5 days we move away the non active particles.
@@ -94,7 +104,6 @@ for currDay = datevec2doy(datevec(modelConfig.startDate)):datevec2doy(datevec(mo
         Particles = findobj(Particles, 'isAlive',true);
     end
 
-    sprintf('---- Day %d -----', (currDay - datevec2doy(datevec(modelConfig.startDate))))
     sprintf('---- Tot Particles %d -----',length(Particles))
 end
 %toc()

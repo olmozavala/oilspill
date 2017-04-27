@@ -18,7 +18,7 @@ function DrawGulfOfMexico()
     Lon = Lon(LONBBOX);
     ZZ = ZZ(LATBBOX,LONBBOX);
     % Append NaN every 2 set of coordinates
-    redSizeBy = 15;
+    redSizeBy = 25;
     [X map] = rgb2ind(golfo,256); % Transforms the image into a colormap and a 2D data
     colormap(map)
     surface(Lon(1:redSizeBy:end),Lat(1:redSizeBy:end),ZZ(1:redSizeBy:end,1:redSizeBy:end),...

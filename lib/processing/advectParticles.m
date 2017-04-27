@@ -1,4 +1,4 @@
-function Particles = advectParticles(VF, modelConfig, Particles, currTime, turb_dif)
+function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
     DeltaT = modelConfig.timeStep*3600; % Move DT to seconds
     R=6371e+03;                 % Radio medio de la tierra (Gill)
 
@@ -30,32 +30,46 @@ function Particles = advectParticles(VF, modelConfig, Particles, currTime, turb_
         % Get the depth indices for the current particles
         currDepthIndx = VF.depthsIndx(dIndx,:);
 
-        % In this case the particles are exactly in one depth
-        % of the currents file
-        if currDepthIndx(1) == currDepthIndx(2)
+        % Verify we are in the surface in order to incorporate the wind contribution
+        if depth == 0 
             U = VF.U(:,:,currDepthIndx(1))';
             V = VF.V(:,:,currDepthIndx(1))';
 
             UT2 = VF.UT2(:,:,currDepthIndx(1))';
             VT2 = VF.VT2(:,:,currDepthIndx(1))';
+
+            % Incorporate the force of the wind
+            U = U + VF.UW'*modelConfig.windcontrib;
+            V = V + VF.VW'*modelConfig.windcontrib;
+            
+            UT2 = UT2 + VF.UWT2'*modelConfig.windcontrib;
+            VT2 = VT2 + VF.VWT2'*modelConfig.windcontrib;
         else
-            % In this case we need to interpolate the currents to the proper Depth
-            range = VF.depths(currDepthIndx(2)) - VF.depths(currDepthIndx(1));
-            distance = depth - VF.depths(currDepthIndx(1));
-            toMult = distance/range;
-            U = (VF.U(:,:,currDepthIndx(1)) + ...
-                    toMult.*(VF.U(:,:,currDepthIndx(2)) - VF.U(:,:,currDepthIndx(1))))';
-            V = (VF.V(:,:,currDepthIndx(1)) + ...
-                    toMult.*(VF.V(:,:,currDepthIndx(2)) - VF.V(:,:,currDepthIndx(1))))';
-            UT2 = (VF.UT2(:,:,currDepthIndx(1)) + ...
-                    toMult.*(VF.UT2(:,:,currDepthIndx(2)) - VF.UT2(:,:,currDepthIndx(1))))';
-            VT2 = (VF.VT2(:,:,currDepthIndx(1)) + ...
-                    toMult.*(VF.VT2(:,:,currDepthIndx(2)) - VF.VT2(:,:,currDepthIndx(1))))';
+            % If we are not in the surface, we need to verify if interpolatation for the proper depth is needed
+            if currDepthIndx(1) == currDepthIndx(2)
+                % In this case the particles are exactly in one depth (no need to interpolate)
+                U = VF.U(:,:,currDepthIndx(1))';
+                V = VF.V(:,:,currDepthIndx(1))';
+
+                UT2 = VF.UT2(:,:,currDepthIndx(1))';
+                VT2 = VF.VT2(:,:,currDepthIndx(1))';
+            else
+                % In this case we need to interpolate the currents to the proper Depth
+                range = VF.depths(currDepthIndx(2)) - VF.depths(currDepthIndx(1));
+                distance = depth - VF.depths(currDepthIndx(1));
+                toMult = distance/range;
+                U = (VF.U(:,:,currDepthIndx(1)) + ...
+                        toMult.*(VF.U(:,:,currDepthIndx(2)) - VF.U(:,:,currDepthIndx(1))))';
+                V = (VF.V(:,:,currDepthIndx(1)) + ...
+                        toMult.*(VF.V(:,:,currDepthIndx(2)) - VF.V(:,:,currDepthIndx(1))))';
+                UT2 = (VF.UT2(:,:,currDepthIndx(1)) + ...
+                        toMult.*(VF.UT2(:,:,currDepthIndx(2)) - VF.UT2(:,:,currDepthIndx(1))))';
+                VT2 = (VF.VT2(:,:,currDepthIndx(1)) + ...
+                        toMult.*(VF.VT2(:,:,currDepthIndx(2)) - VF.VT2(:,:,currDepthIndx(1))))';
+            end
         end
 
-        % Interpolate U and V to DeltaT/2 
-        Uhalf = U + (UT2 - U)/2;
-        Vhalf = V + (VT2 - V)/2;
+
         % Interpolate the U and V fields for the particles positions
         Upart = interp2(VF.LON, VF.LAT, U, lonP, latP);
         Vpart = interp2(VF.LON, VF.LAT, V, lonP, latP);
@@ -65,12 +79,15 @@ function Particles = advectParticles(VF, modelConfig, Particles, currTime, turb_
         % Make half the jump 
         tempK2lat = latP + k1lat/2;
         tempK2Lon = lonP + k1lon/2;
+        % Interpolate U and V to DeltaT/2 
+        Uhalf = U + (UT2 - U)/2;
+        Vhalf = V + (VT2 - V)/2;
         % Interpolate U and V to New particles positions using U at dt/2
         UhalfPart = interp2(VF.LON, VF.LAT, Uhalf, tempK2Lon, tempK2lat);
         VhalfPart = interp2(VF.LON, VF.LAT, Vhalf, tempK2Lon, tempK2lat);
         % Add turbulent-diffusion
-        Uturb = UhalfPart .* (-turb_dif + (2*turb_dif) .* rand(size(UhalfPart)));
-        Vturb = VhalfPart .* (-turb_dif + (2*turb_dif) .* rand(size(VhalfPart)));
+        Uturb = UhalfPart .* (-modelConfig.turbulentDiff + (2*modelConfig.turbulentDiff) .* rand(size(UhalfPart)));
+        Vturb = VhalfPart .* (-modelConfig.turbulentDiff + (2*modelConfig.turbulentDiff) .* rand(size(VhalfPart)));
         UhalfPart = UhalfPart + Uturb;
         VhalfPart = VhalfPart + Vturb;
         % Move particles to dt
@@ -78,7 +95,7 @@ function Particles = advectParticles(VF, modelConfig, Particles, currTime, turb_
         newLonP= lonP + ((DeltaT*UhalfPart)*(180/(R*pi))).*cosd(latP);
 
         % Iterate over the particles and add the new positions
-        for idxPart = 1:length(numParticles)
+        for idxPart = 1:numParticles
             % Get current particle
             particle = LiveParticles(originalIndexes(idxPart));
             % Add in one the current time step of the particle
@@ -91,8 +108,8 @@ function Particles = advectParticles(VF, modelConfig, Particles, currTime, turb_
             particle.lastLat = newLatP(idxPart);
             particle.lastLon = newLonP(idxPart);
 
-            % Update the next date
-            particle.dates{particle.currTimeStep} = currTime;
+            % Update the next time
+            particle.dates{particle.currTimeStep} = nextTime;
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
         end
