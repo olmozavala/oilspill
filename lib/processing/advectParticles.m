@@ -38,12 +38,12 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             UT2 = VF.UT2(:,:,currDepthIndx(1))';
             VT2 = VF.VT2(:,:,currDepthIndx(1))';
 
-            % Incorporate the force of the wind
-            U = U + VF.UW'*modelConfig.windcontrib;
-            V = V + VF.VW'*modelConfig.windcontrib;
+            % Incorporate the force of the wind (using the rotated winds)
+            U = U + VF.UWR'*modelConfig.windcontrib;
+            V = V + VF.VWR'*modelConfig.windcontrib;
             
-            UT2 = UT2 + VF.UWT2'*modelConfig.windcontrib;
-            VT2 = VT2 + VF.VWT2'*modelConfig.windcontrib;
+            UT2 = UT2 + VF.UWRT2'*modelConfig.windcontrib;
+            VT2 = VT2 + VF.VWRT2'*modelConfig.windcontrib;
         else
             % If we are not in the surface, we need to verify if interpolatation for the proper depth is needed
             if currDepthIndx(1) == currDepthIndx(2)
