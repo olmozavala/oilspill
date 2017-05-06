@@ -4,8 +4,8 @@ function DrawGulfOfMexico()
     golfo = importdata('golfo.jpg');
 
     %% ------------- Display only the gulf of mexico with a texture ------
-    latlim = [17.5 32];
-    lonlim= [-98 -79];
+    latlim = [18 31];
+    lonlim= [-98 -80];
 
     % Cut the values we are interested in
     LATBBOX= Lat > latlim(1);

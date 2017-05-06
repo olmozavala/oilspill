@@ -15,22 +15,25 @@ classdef Particle < handle
    end
 	methods
 	   function obj = Particle(startDate, initSize, diffusion, component, lat, lon, depth)
-            obj.dates = cell(initSize,1);
+            obj.dates = zeros(initSize,1);
             obj.lats = zeros(initSize,1);
             obj.lons = zeros(initSize,1);
             obj.depths = zeros(initSize,1);
-            obj.dates{1} = startDate;
+            obj.dates(1) = startDate;
             obj.lifeTime = 0;
             obj.currTimeStep = 1;
-            obj.isAlive = true;
+            obj.isAlive = 1;
             obj.status = 'M';
             obj.component = component;
-            obj.lats(1) = lat+randn*diffusion;
-            obj.lons(1) = lon+randn*diffusion;
+            % Makes it a litle more efficient
+            t1 = lat+randn*diffusion;
+            t2 = lon+randn*diffusion;
+            obj.lats(1) = t1;
+            obj.lons(1) = t2;
             obj.depths(1) = depth;
             obj.lastDepth = depth;
-            obj.lastLat = obj.lats(1);
-            obj.lastLon=  obj.lons(1);
+            obj.lastLat = t1;
+            obj.lastLon=  t2;
 	   end
 	end
 end

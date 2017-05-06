@@ -11,29 +11,31 @@ modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
 modelConfig.endDate            = datetime(2010,08,26); % Year, month, day
 modelConfig.timeStep           = 6;    % 6 Hours time step
-modelConfig.barrelsPerParticle = 100; % How many barrels of oil are we goin to simulate one particle.
-modelConfig.depths             = [0 100 1000];
+modelConfig.barrelsPerParticle = 50; % How many barrels of oil are we goin to simulate one particle.
+modelConfig.depths             = [0 500 1000];
 
 modelConfig.totComponents      = 8;
 modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0];...
-                                    [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
-modelConfig.colorByComponent   = colorGradient([1 0 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
+    [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
+%modelConfig.colorByComponent   = colorGradient([1 0 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
+modelConfig.colorByComponent   = colorGradient([0 1 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
 
 
 modelConfig.windcontrib        = 0.035;   % Wind contribution
 modelConfig.turbulentDiff      = 1;       % Turbulent diffusion
-modelConfig.diffusion          = .005;    % Variance (in degrees) for random diffusion when initializing particles 
-                                    
+modelConfig.diffusion          = .005;    % Variance (in degrees) for random diffusion when initializing particles
+
 modelConfig.subSurfaceFraction = [1/2,1/2];
 modelConfig.decay.evaporate    = 1;
 modelConfig.decay.biodeg       = 1;
 modelConfig.decay.burned       = 1;
 modelConfig.decay.collected    = 1;
-modelConfig.decay.byComponent  = threshold(95,[4, 8, 12, 16, 20, 24, 28, 32],modelConfig.timeStep);
+modelConfig.decay.byComponent  = threshold(95,[3, 6, 9, 12, 15, 18, 21, 24],modelConfig.timeStep);
 modelConfig.initPartSize = 10*(24/modelConfig.timeStep); % Initial size of particles vector array of lats, lons, etc.
 
 atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files
 oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
+%oceanFilePrefix  = 'hycom_2019_'; % File prefix for the ocean netcdf files
 uvar = 'U';
 vvar = 'V';
 visualize = true; % Indicates if we want to visualize the results as the model runs.
@@ -54,9 +56,9 @@ Particles          = Particle.empty; % Start the array of particles empty
 
 %  Initialize the figure for visualization of the particles
 if visualize
-    f=figure 
+    f=figure
     DrawGulfOfMexico();
-     %% Animating particles
+    %% Animating particles
     view(-10.5,28) % Define the angle of view
     zoom(2)
     axis tight;
@@ -68,27 +70,29 @@ startDay = datevec2doy(datevec(modelConfig.startDate));
 endDay = datevec2doy(datevec(modelConfig.endDate))
 for currDay = startDay:endDay
     sprintf('---- Day %d -----', (currDay - startDay))
-
+    
     % Verify we have some data in this day
     if any(FechasDerrame == currDay)
         advectingParticles = true; % We should start to reading vector fields and advecting particles
         % Read from Fechas derrame and init proper number of particles. In a function
         spillData = spillData.splitByTimeStep(modelConfig, currDay);
     end
-
+    
     for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
-	  currTime = toSerialDate(modelConfig.startDate.Year, currHour, currDay);
-	  nextTime = toSerialDate(modelConfig.startDate.Year, currHour+modelConfig.timeStep, currDay);
+        currTime = toSerialDate(modelConfig.startDate.Year, currHour, currDay);
+        nextTime = toSerialDate(modelConfig.startDate.Year, currHour+modelConfig.timeStep, currDay);
         if advectingParticles
             % Add the proper number of particles for this time step
             Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
 
-            %sprintf('---- hour %d -----',currHour)
-            VF = VF.readUV( currHour, currDay, modelConfig);
-	    	% Advect particles
-		Particles = advectParticles(VF, modelConfig, Particles, nextTime);
-		% Degrading particles
-		Particles = oilDegradation(Particles, modelConfig, spillData);
+            % Read winds and currents
+            VF = VF.readUV(currHour, currDay, modelConfig);
+
+            % Advect particles
+            Particles = advectParticles(VF, modelConfig, Particles, nextTime);
+            
+            % Degrading particles
+            Particles = oilDegradation(Particles, modelConfig, spillData);
         end
         %  Visualize the current step
         if visualize
@@ -98,10 +102,10 @@ for currDay = startDay:endDay
             if  currDay - startDay == 0
                 hold on
                 f = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
-                            -[LiveParticles.lastDepth],9,modelConfig.colorByComponent([LiveParticles.component],:),'filled');
-
+                    -[LiveParticles.lastDepth],9,modelConfig.colorByComponent([LiveParticles.component],:),'filled');
+                
                 %h = scatter3([DeadParticles.lastLon], [DeadParticles.lastLat], ...
-                            %-[DeadParticles.lastDepth],9,'r','filled');
+                %-[DeadParticles.lastDepth],9,'r','filled');
                 f.XDataMode = 'manual';
                 h.XDataMode = 'manual';
                 drawnow
@@ -110,25 +114,25 @@ for currDay = startDay:endDay
                 f.YData = [LiveParticles.lastLat];
                 f.ZData = -[LiveParticles.lastDepth];
                 f.CData = modelConfig.colorByComponent([LiveParticles.component],:);
-
+                
                 %h.XData = [DeadParticles.lastLon];
                 %h.YData = [DeadParticles.lastLat];
                 %h.ZData = -[DeadParticles.lastDepth];
                 refreshdata
                 drawnow
             end
-
+            
         end
         %pause(10)
     end
-
+    
     % Every 5 days we move away the non active particles.
     if mod(currDay,5) == 0
         NonLiveParticles = findobj(Particles, 'isAlive',false);
         FinalParticles = {FinalParticles,NonLiveParticles};
         Particles = findobj(Particles, 'isAlive',true);
     end
-
+    
     sprintf('---- Tot Particles %d -----',length(Particles))
 end
 %toc()

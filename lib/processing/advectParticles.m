@@ -23,7 +23,7 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
         originalIndexes = find(currPartIndex);
         numParticles = sum(currPartIndex);
 
-        % Get current particle
+        % Get current particles lats and lons
         latP = allLat(currPartIndex);
         lonP = allLon(currPartIndex);
 
@@ -39,11 +39,11 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             VT2 = VF.VT2(:,:,currDepthIndx(1))';
 
             % Incorporate the force of the wind (using the rotated winds)
-            U = U + VF.UWR'*modelConfig.windcontrib;
-            V = V + VF.VWR'*modelConfig.windcontrib;
+            U = U + VF.UWR*modelConfig.windcontrib;
+            V = V + VF.VWR*modelConfig.windcontrib;
             
-            UT2 = UT2 + VF.UWRT2'*modelConfig.windcontrib;
-            VT2 = VT2 + VF.VWRT2'*modelConfig.windcontrib;
+            UT2 = UT2 + VF.UWRT2*modelConfig.windcontrib;
+            VT2 = VT2 + VF.VWRT2*modelConfig.windcontrib;
         else
             % If we are not in the surface, we need to verify if interpolatation for the proper depth is needed
             if currDepthIndx(1) == currDepthIndx(2)
@@ -102,14 +102,14 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             particle.currTimeStep = particle.currTimeStep + 1;
             particle.lats(particle.currTimeStep) = newLatP(idxPart);
             particle.lons(particle.currTimeStep) = newLonP(idxPart);
-            particle.depths(particle.currTimeStep) = particle.depths(particle.currTimeStep-1);
-            particle.lastDepth = particle.lastDepth;% If we would like to change the depth
+            %particle.depths(particle.currTimeStep) = particle.lastDepth;
+            %particle.lastDepth = particle.lastDepth;% If someday we would like to change the depth
 
             particle.lastLat = newLatP(idxPart);
             particle.lastLon = newLonP(idxPart);
 
             % Update the next time
-            particle.dates{particle.currTimeStep} = nextTime;
+            particle.dates(particle.currTimeStep) = nextTime;
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
         end
