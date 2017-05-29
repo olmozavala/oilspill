@@ -20,6 +20,9 @@ function DrawGulfOfMexico()
     % Append NaN every 2 set of coordinates
     redSizeBy = 25;
     [X map] = rgb2ind(golfo,256); % Transforms the image into a colormap and a 2D data
+
+%    contour3(Lon,Lat,ZZ,[0,0],'k');
+%    hold on;
     colormap(map)
     surface(Lon(1:redSizeBy:end),Lat(1:redSizeBy:end),ZZ(1:redSizeBy:end,1:redSizeBy:end),...
                     'FaceColor', 'texturemap', 'EdgeColor','none','Cdata',X);

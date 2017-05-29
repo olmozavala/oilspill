@@ -19,4 +19,3 @@ classdef ModelConfig
    end
    % TODO constructor that initializes all these fields and validates the input
 end
-

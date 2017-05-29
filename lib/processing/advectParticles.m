@@ -86,8 +86,8 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
         UhalfPart = interp2(VF.LON, VF.LAT, Uhalf, tempK2Lon, tempK2lat);
         VhalfPart = interp2(VF.LON, VF.LAT, Vhalf, tempK2Lon, tempK2lat);
         % Add turbulent-diffusion
-        Uturb = UhalfPart .* (-modelConfig.turbulentDiff + (2*modelConfig.turbulentDiff) .* rand(size(UhalfPart)));
-        Vturb = VhalfPart .* (-modelConfig.turbulentDiff + (2*modelConfig.turbulentDiff) .* rand(size(VhalfPart)));
+        Uturb = UhalfPart .* (-modelConfig.turbulentDiff(dIndx) + (2*modelConfig.turbulentDiff(dIndx)) .* rand(size(UhalfPart)));
+        Vturb = VhalfPart .* (-modelConfig.turbulentDiff(dIndx) + (2*modelConfig.turbulentDiff(dIndx)) .* rand(size(VhalfPart)));
         UhalfPart = UhalfPart + Uturb;
         VhalfPart = VhalfPart + Vturb;
         % Move particles to dt

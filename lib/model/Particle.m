@@ -15,10 +15,10 @@ classdef Particle < handle
    end
 	methods
 	   function obj = Particle(startDate, initSize, diffusion, component, lat, lon, depth)
-            obj.dates = zeros(initSize,1);
-            obj.lats = zeros(initSize,1);
-            obj.lons = zeros(initSize,1);
-            obj.depths = zeros(initSize,1);
+            obj.dates = nan(initSize,1);
+            obj.lats = nan(initSize,1);
+            obj.lons = nan(initSize,1);
+            obj.depths = nan(initSize,1);
             obj.dates(1) = startDate;
             obj.lifeTime = 0;
             obj.currTimeStep = 1;
@@ -26,8 +26,8 @@ classdef Particle < handle
             obj.status = 'M';
             obj.component = component;
             % Makes it a litle more efficient
-            t1 = lat+randn*diffusion;
-            t2 = lon+randn*diffusion;
+            t1 = lat+randn*km2deg(diffusion/2);
+            t2 = lon+randn*km2deg(diffusion/2);
             obj.lats(1) = t1;
             obj.lons(1) = t2;
             obj.depths(1) = depth;

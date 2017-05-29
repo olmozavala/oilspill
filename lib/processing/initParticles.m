@@ -1,6 +1,6 @@
 function particles = initParticles(particles, spillData, modelConfig, currDay, currHour)
     idxPart = length(particles) + 1; % Index of the total number of particles
-    totComp = 8; % TODO remove hardcoded number 
+    totComp = modelConfig.totComponents; % TODO remove hardcoded number 
     
     % Decide how many particles should we deploy at each depth and each component
     idxDepth = 1; % Auxiliary index of the current depth
@@ -26,7 +26,7 @@ function particles = initParticles(particles, spillData, modelConfig, currDay, c
         for component = 1:totComp
             % Initializes the number of particles decided in the previous step
             for numPart = 0:particlesByDepth(depthIdx, component)
-                particles(idxPart) = Particle(startDate, modelConfig.initPartSize, modelConfig.diffusion, component, modelConfig.lat, modelConfig.lon, ...
+                particles(idxPart) = Particle(startDate, modelConfig.initPartSize, modelConfig.diffusion(depthIdx), component, modelConfig.lat, modelConfig.lon, ...
                                             modelConfig.depths(depthIdx));
                 idxPart = idxPart + 1;
             end

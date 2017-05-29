@@ -1,14 +1,15 @@
 function Particles = oilDegradation(Particles, modelConfig, spillData)
 
 % Verify that we need to degrade something
-if modelConfig.decay.evaporate == 1 || modelConfig.decay.biodeg == 1 ||...
+if modelConfig.decay.evaporate == 1 || modelConfig.decay.exp_degradation == 1 ||...
         modelConfig.decay.burned == 1 || modelConfig.decay.collected == 1
      
     % Define the number of particles we need to degradate
     parts_evaporated = 0;
     parts_burned     = 0;
     parts_collected  = 0;
-    burning_radius = 3;   
+    % TODO modify km2deg to take into account the lattitude where we are
+    burning_radius = km2deg(modelConfig.decay.burned_radius);
 
     % Get the live particles
     LiveParticles = findobj(Particles, 'isAlive',true);
@@ -20,13 +21,13 @@ if modelConfig.decay.evaporate == 1 || modelConfig.decay.biodeg == 1 ||...
     random_particles = randperm(numParticles);
 
     % Degradated
-    if modelConfig.decay.biodeg == 1
+    if modelConfig.decay.exp_degradation == 1
 
         % Select all the components for the live particles
         ParticleComponents=  [LiveParticles.component];
 
         % Choose how many will be biodegradated
-        partToKill= rand(1, numParticles) > modelConfig.decay.byComponent(ParticleComponents);
+        partToKill= rand(1, numParticles) > modelConfig.decay.exp_deg.byComponent(ParticleComponents);
 
         % Modify the selected particles    
         for finalIndex = random_particles(partToKill)
