@@ -14,17 +14,20 @@ classdef VectorFields
       LAT % Latitude meshgrid of the currents
       LON % Longitude meshgrid of the currents
       depths % Array of depths corresponding to U and V
-      depthsMinMax % Array of indexes corresponding to the minumum and maximum depth of the particles
       depthsIndx% Array of indexes corresponding to closest indexes at each depth of the particles
-	atmFilePrefix % File prefix for the atmospheric netcdf files
-	oceanFilePrefix  % File prefix for the ocean netcdf files 
-      uvar % Is the name of the variable U inside the netCDF file 
-      vvar % Is the name of the variable V inside the netCDF file
   end
   properties (Access = private)
+      depthsIndxLocal% Array of indexes corresponding to closest indexes at each depth of the particles
 
       windDeltaT = 6; % This is the delta T for the wind fields
       myEps = .01; % Modified epsilon to make it work with ceil
+
+      depthsMinMax % Array of indexes corresponding to the minumum and maximum depth of the particles
+	atmFilePrefix % File prefix for the atmospheric netcdf files
+	oceanFilePrefix  % File prefix for the ocean netcdf files 
+
+      uvar % Is the name of the variable U inside the netCDF file 
+      vvar % Is the name of the variable V inside the netCDF file
 
       %%% These set of variables are only used to make the proper interpolation of the currents and
       % should NOT be used by external code
@@ -113,14 +116,16 @@ classdef VectorFields
                     [val, indx] = min(abs(obj.depths - currDepth));
                     if val == 0
                         % For this depth we only need one index, because is the exact depth
-                        obj.depthsIndx(currIndx,:) = [indx, indx];
+                        obj.depthsIndxLocal(currIndx,:) = [indx, indx];
+                        obj.depthsIndx = obj.depthsIndxLocal;
                     else
                         % Verify we are on the right side of the closest depth
                         if (obj.depths(indx) - currDepth) > 0
-                            obj.depthsIndx(currIndx,:) = [max(indx-1,0), indx];
+                            obj.depthsIndxLocal(currIndx,:) = [max(indx-1,0), indx];
                         else
-                            obj.depthsIndx(currIndx,:) = [indx, min(indx+1,obj.depthsMinMax(2)) ];
+                            obj.depthsIndxLocal(currIndx,:) = [indx, min(indx+1,obj.depthsMinMax(2)) ];
                         end
+                        obj.depthsIndx = obj.depthsIndxLocal;
                     end
                     currIndx = currIndx + 1;
                 end
@@ -157,8 +162,10 @@ classdef VectorFields
             % (this will only happens the first time of all)
             if firstRead
                 %readOceanFile
-                obj.UD = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
-                obj.VD = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                tidx = 1;
+                for thisDepth = [unique(obj.depthsIndxLocal)]
+                    obj.UD(:,:,tidx) = double(ncread(readOceanFile,obj.uvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
+                    obj.VD(:,:,tidx) = double(ncread(readOceanFile,obj.vvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
 
                 %readWindFile
                 TempUW = double(ncread(readWindFile,'U_Viento'));

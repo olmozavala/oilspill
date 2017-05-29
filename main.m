@@ -12,7 +12,7 @@ modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
 modelConfig.endDate            = datetime(2010,08,26); % Year, month, day
 modelConfig.timeStep           = 6;    % 6 Hours time step
 modelConfig.barrelsPerParticle = 50; % How many barrels of oil are we goin to simulate one particle.
-modelConfig.depths             = [0 500 1000];
+modelConfig.depths             = [0 3 1000];
 
 modelConfig.totComponents      = 8;
 modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.0];...
