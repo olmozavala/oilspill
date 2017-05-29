@@ -163,9 +163,16 @@ classdef VectorFields
             if firstRead
                 %readOceanFile
                 tidx = 1;
-                for thisDepth = [unique(obj.depthsIndxLocal)]
-                    obj.UD(:,:,tidx) = double(ncread(readOceanFile,obj.uvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
-                    obj.VD(:,:,tidx) = double(ncread(readOceanFile,obj.vvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
+
+                obj.UD = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                obj.VD = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+
+               % 
+               % for thisDepth = [unique(obj.depthsIndxLocal)]
+               %     obj.UD(:,:,tidx) = double(ncread(readOceanFile,obj.uvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
+               %     obj.VD(:,:,tidx) = double(ncread(readOceanFile,obj.vvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
+               % end
+
 
                 %readWindFile
                 TempUW = double(ncread(readWindFile,'U_Viento'));
