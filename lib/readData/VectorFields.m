@@ -176,7 +176,7 @@ classdef VectorFields
             if readWindT2
                 %readWindFileT2
                 TempUW = double(ncread(readWindFileT2,'U_Viento'));
-                TempVW = double(ncread(readWindFileT2,'U_Viento'));
+                TempVW = double(ncread(readWindFileT2,'V_Viento'));
                 if ~firstRead % Always except the FIRST time of all
                     % Save the new 'current' winds
                     obj.UWRD = obj.UWRDT2;
