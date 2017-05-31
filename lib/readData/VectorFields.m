@@ -46,15 +46,17 @@ classdef VectorFields
       VWRDT2minusVWRDT % This variable always has VDT2 - VD, is used to reduce computations in every iteration
   end
   methods
-	   function obj = VectorFields(currHour, atmFilePrefix, oceanFilePrefix, uvar, vvar)
-			obj.currHour = currHour; 
+	   function obj = VectorFields()
+         % Constructor of VectorFields, only initializes some variables.
+			obj.currHour = 0; % TODO, currently only works starting at hour 0
 			obj.currDay = -1;
-                  obj.atmFilePrefix = atmFilePrefix;
-                  obj.oceanFilePrefix = oceanFilePrefix;
-                  obj.uvar = uvar;
-                  obj.vvar = vvar;
+                  obj.atmFilePrefix = 'Dia_'; % File prefix for the atmospheric netcdf files
+                  obj.oceanFilePrefix = 'archv.2010_'; % File prefix for the ocean netcdf files
+                  obj.uvar = 'U';
+                  obj.vvar = 'V';
 	   end
          function obj = readUV(obj, modelHour, modelDay, modelConfig)
+         % Function in charge of deciding what should we read at each time step
             windFileNum = floor(modelHour/obj.windDeltaT)+1;
             windFileT2Num = ceil( (modelHour + obj.myEps)/obj.windDeltaT)+1;
 
@@ -133,15 +135,14 @@ classdef VectorFields
                 [obj.LON, obj.LAT] = meshgrid(lon,lat);
             else
             % -------------------- This we check every other time that is not the first time ---------------
-                % Verify we haven't increase the file name
+                % Verify we haven't increase the file name (compared with the previous hour)
                 if floor(modelHour/obj.windDeltaT)~= floor(obj.currHour/obj.windDeltaT)
                     readWindT2 = true;
                 end
 
                 % Verify the next time step for the wind is still in this day
-                if windFileT2Num > (24/obj.windDeltaT) &&  (mod(modelHour,obj.windDeltaT) == 0 )
+                if windFileT2Num > (24/obj.windDeltaT) &&  readWindT2
                     readNextDayWind = true;
-                    readWindT2 = true;
                 end
 
                 % Decide if we need to read new data for the currents

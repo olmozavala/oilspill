@@ -14,7 +14,7 @@ classdef Particle < handle
       lastLon % Float that indicates the last lat of the particle
    end
 	methods
-	   function obj = Particle(startDate, initSize, diffusion, component, lat, lon, depth)
+	   function obj = Particle(startDate, initSize,  diffusionLat, diffusionLon, component, lat, lon, depth)
             obj.dates = nan(initSize,1);
             obj.lats = nan(initSize,1);
             obj.lons = nan(initSize,1);
@@ -26,8 +26,8 @@ classdef Particle < handle
             obj.status = 'M';
             obj.component = component;
             % Makes it a litle more efficient
-            t1 = lat+randn*km2deg(diffusion/2);
-            t2 = lon+randn*km2deg(diffusion/2);
+            t1 = lat+randn*diffusionLat;
+            t2 = lon+randn*diffusionLon;
             obj.lats(1) = t1;
             obj.lons(1) = t2;
             obj.depths(1) = depth;

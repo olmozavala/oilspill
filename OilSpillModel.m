@@ -1,10 +1,6 @@
 % In this new version, the objective is to make the code as efficient as possible
 function OilSpillModel(modelConfig)
-    atmFilePrefix  = 'Dia_'; % File prefix for the atmospheric netcdf files
-    oceanFilePrefix  = 'archv.2010_'; % File prefix for the ocean netcdf files
     %oceanFilePrefix  = 'hycom_2019_'; % File prefix for the ocean netcdf files
-    uvar = 'U';
-    vvar = 'V';
     visualize = true; % Indicates if we want to visualize the results as the model runs.
 
     % La funcion cantidades_por_dia determina las distintas cantidades de petroleo
@@ -17,7 +13,7 @@ function OilSpillModel(modelConfig)
     % VDB                = Cantidad de petroleo dispersado en la sub-superficie
     [FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB] = cantidades_por_dia;
     spillData          = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB);
-    VF                 = VectorFields(0, atmFilePrefix, oceanFilePrefix, uvar, vvar);
+    VF                 = VectorFields();
     advectingParticles = false;          % Indicate when should we start reading the UV fields
     Particles          = Particle.empty; % Start the array of particles empty
 

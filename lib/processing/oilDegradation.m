@@ -39,17 +39,21 @@ if modelConfig.decay.evaporate == 1 || modelConfig.decay.exp_degradation == 1 ||
         random_particles =  random_particles(~partToKill);
     end
 
+    % Compute the number of particles to evaporate, burn and recover (statistically) from fractional value
+    toEvaporate = floor( spillData.ts_evaporated ) +  (( spillData.ts_evaporated - floor( spillData.ts_evaporated ) ) > rand(1));
+    toBurn = floor( spillData.ts_burned ) +  (( spillData.ts_burned - floor( spillData.ts_burned ) ) > rand(1));
+    toRecover = floor( spillData.ts_recovered ) +  (( spillData.ts_recovered - floor( spillData.ts_recovered ) ) > rand(1));
     % For the rest of the live particles, keep degrading
     for partIndx = random_particles
         component_p = LiveParticles(partIndx).component;
         % Evaporated
-        if modelConfig.decay.evaporate == 1 && parts_evaporated < spillData.ts_evaporated &&...
+        if modelConfig.decay.evaporate == 1 && parts_evaporated < toEvaporate &&...
                 ismember(component_p,1:4)
             LiveParticles(partIndx).isAlive = 0;
             LiveParticles(partIndx).status  = 'E';
             parts_evaporated = parts_evaporated + 1;
             % Burned
-        elseif modelConfig.decay.burned == 1 && parts_burned < spillData.ts_burned
+        elseif modelConfig.decay.burned == 1 && parts_burned < toBurn
             % Calculate the distance from source
             ind = LiveParticles(partIndx).currTimeStep;
             lat_p = LiveParticles(partIndx).lats(ind);
@@ -67,7 +71,7 @@ if modelConfig.decay.evaporate == 1 || modelConfig.decay.exp_degradation == 1 ||
                 parts_burned = parts_burned + 1;
             end
             % Collected
-        elseif modelConfig.decay.collected == 1 && parts_collected <  spillData.ts_recovered
+        elseif modelConfig.decay.collected == 1 && parts_collected <  toRecover
             LiveParticles(partIndx).isAlive = 0;
             LiveParticles(partIndx).status  = 'C';
             parts_collected = parts_collected + 1;

@@ -1,6 +1,6 @@
 function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
-    DeltaT = modelConfig.timeStep*3600; % Move DT to seconds
-    R=6371e+03;                 % Radio medio de la tierra (Gill)
+    DeltaT = modelConfig.timeStepSec; % Move DT to seconds
+    R = modelConfig.R;                % Mean radious of the earth
 
     % Get live particles 
     LiveParticles = findobj(Particles, 'isAlive',true);

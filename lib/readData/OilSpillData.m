@@ -22,14 +22,16 @@ classdef OilSpillData
       obj.recovered  = VNW;
     end
     function obj = splitByTimeStep(obj, modelConfig, currDay)
+    % SPLITBYTIMESTEP Computes the amount of particles to be created at surface and subsurface at each timestep
       barrelsPerParticle = modelConfig.barrelsPerParticle;
       currDateIdx        = find(obj.dates == currDay);
       fractByTimeStep    = modelConfig.timeStep/24; % What is the fraction of particles we need to deply by each time step
-      obj.ts_particles   = ceil(fractByTimeStep*(obj.barrels(currDateIdx)/barrelsPerParticle));    % Total number of particles
-      obj.ts_partSub     = ceil(modelConfig.subSurfaceFraction.*fractByTimeStep*(obj.barrelsSub(currDateIdx)/barrelsPerParticle)); % Total number of particles sub surface
-      obj.ts_burned      = ceil(fractByTimeStep*(obj.burned(currDateIdx)/barrelsPerParticle));     % Number of particles to evaporate
-      obj.ts_evaporated  = ceil(fractByTimeStep*(obj.evaporated(currDateIdx)/barrelsPerParticle)); % Number of particles to evaporate
-      obj.ts_recovered   = ceil(fractByTimeStep*(obj.recovered(currDateIdx)/barrelsPerParticle));  % Number of particles recovered
+      % We compute the integer number of particles to be created at each timestep. 
+      obj.ts_particles   = fractByTimeStep*(obj.barrels(currDateIdx)/barrelsPerParticle);    % Total number of particles
+      obj.ts_partSub     = modelConfig.subSurfaceFraction.*fractByTimeStep*(obj.barrelsSub(currDateIdx)/barrelsPerParticle); % Total number of particles sub surface
+      obj.ts_burned      = fractByTimeStep*(obj.burned(currDateIdx)/barrelsPerParticle);     % Number of particles to evaporate
+      obj.ts_evaporated  = fractByTimeStep*(obj.evaporated(currDateIdx)/barrelsPerParticle); % Number of particles to evaporate
+      obj.ts_recovered   = fractByTimeStep*(obj.recovered(currDateIdx)/barrelsPerParticle);  % Number of particles recovered
       %fprintf('----------- Part: %0d Burned %0d Eva %0d Rec %0d \n', ...
       %        obj.ts_particles, obj.ts_burned, obj.ts_evaporated, obj.ts_recovered);
       %display(strcat('Part at subsurface: ',num2str(obj.ts_partSub)))
