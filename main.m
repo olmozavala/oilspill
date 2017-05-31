@@ -9,7 +9,7 @@ modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
 modelConfig.endDate            = datetime(2010,08,26); % Year, month, day
-modelConfig.timeStep           = .5;    % 6 Hours time step
+modelConfig.timeStep           = 8;    % 6 Hours time step
 modelConfig.barrelsPerParticle = 50; % How many barrels of oil are we goin to simulate one particle.
 modelConfig.depths             = [0 3 1000];
 
