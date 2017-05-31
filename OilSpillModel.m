@@ -41,52 +41,54 @@ function OilSpillModel(modelConfig)
             spillData = spillData.splitByTimeStep(modelConfig, currDay);
         end
         
-        for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
-            currTime = toSerialDate(modelConfig.startDate.Year, currHour, currDay);
-            nextTime = toSerialDate(modelConfig.startDate.Year, currHour+modelConfig.timeStep, currDay);
-            if advectingParticles
-                % Add the proper number of particles for this time step
-                Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
+        if advectingParticles
+            for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
+                currTime = toSerialDate(modelConfig.startDate.Year, currHour, currDay);
+                nextTime = toSerialDate(modelConfig.startDate.Year, currHour+modelConfig.timeStep, currDay);
+                if advectingParticles
+                    % Add the proper number of particles for this time step
+                    Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
 
-                % Read winds and currents
-                VF = VF.readUV(currHour, currDay, modelConfig);
+                    % Read winds and currents
+                    VF = VF.readUV(currHour, currDay, modelConfig);
 
-                % Advect particles
-                Particles = advectParticles(VF, modelConfig, Particles, nextTime);
-                
-                % Degrading particles
-                Particles = oilDegradation(Particles, modelConfig, spillData);
-            end
-            %  Visualize the current step
-            if visualize
-                %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
-                LiveParticles = findobj(Particles, 'isAlive',true);
-                DeadParticles = findobj(Particles, 'isAlive',false);
-                if  currDay - startDay == 0
-                    hold on
-                    f = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
-                        -[LiveParticles.lastDepth],9,modelConfig.colorByComponent([LiveParticles.component],:),'filled');
+                    % Advect particles
+                    Particles = advectParticles(VF, modelConfig, Particles, nextTime);
                     
-                    %h = scatter3([DeadParticles.lastLon], [DeadParticles.lastLat], ...
-                    %-[DeadParticles.lastDepth],9,'r','filled');
-                    f.XDataMode = 'manual';
-                    h.XDataMode = 'manual';
-                    drawnow
-                else
-                    f.XData = [LiveParticles.lastLon];
-                    f.YData = [LiveParticles.lastLat];
-                    f.ZData = -[LiveParticles.lastDepth];
-                    f.CData = modelConfig.colorByComponent([LiveParticles.component],:);
-                    
-                    %h.XData = [DeadParticles.lastLon];
-                    %h.YData = [DeadParticles.lastLat];
-                    %h.ZData = -[DeadParticles.lastDepth];
-                    refreshdata
-                    drawnow
+                    % Degrading particles
+                    Particles = oilDegradation(Particles, modelConfig, spillData);
                 end
-                
+                %  Visualize the current step
+                if visualize
+                    %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
+                    LiveParticles = findobj(Particles, 'isAlive',true);
+                    DeadParticles = findobj(Particles, 'isAlive',false);
+                    if  currDay - startDay == 0
+                        hold on
+                        f = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
+                            -[LiveParticles.lastDepth],9,modelConfig.colorByComponent([LiveParticles.component],:),'filled');
+                        
+                        %h = scatter3([DeadParticles.lastLon], [DeadParticles.lastLat], ...
+                        %-[DeadParticles.lastDepth],9,'r','filled');
+                        f.XDataMode = 'manual';
+                        h.XDataMode = 'manual';
+                        drawnow
+                    else
+                        f.XData = [LiveParticles.lastLon];
+                        f.YData = [LiveParticles.lastLat];
+                        f.ZData = -[LiveParticles.lastDepth];
+                        f.CData = modelConfig.colorByComponent([LiveParticles.component],:);
+                        
+                        %h.XData = [DeadParticles.lastLon];
+                        %h.YData = [DeadParticles.lastLat];
+                        %h.ZData = -[DeadParticles.lastDepth];
+                        refreshdata
+                        drawnow
+                    end
+                    
+                end
+                %pause(10)
             end
-            %pause(10)
         end
         
         % Every 5 days we move away the non active particles.

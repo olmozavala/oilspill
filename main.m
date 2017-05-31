@@ -9,12 +9,13 @@ modelConfig.lat                =  28.738;
 modelConfig.lon                = -88.366;
 modelConfig.startDate          = datetime(2010,04,22); % Year, month, day
 modelConfig.endDate            = datetime(2010,08,26); % Year, month, day
-modelConfig.timeStep           = 4;    % 6 Hours time step
+modelConfig.timeStep           = 6;    % 6 Hours time step
 modelConfig.R                  = 6371e+03; % Mean radious of the earth
 modelConfig.barrelsPerParticle = 50; % How many barrels of oil are we goin to simulate one particle.
-modelConfig.depths             = [0 3 1000];
+modelConfig.depths             = [0 2 101]; % First index MUST be 0 (surface)
 
 modelConfig.components         = [[0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; ...
+                                  [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; ...
                                   [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]; ...
                                   [0.05 0.20 0.30 0.20 0.10 0.05 0.05 0.05]];
 modelConfig.totComponents      = length(modelConfig.components(1,:)); 
@@ -33,6 +34,7 @@ modelConfig.decay.exp_degradation = 1; % Exponential degradation
 modelConfig.decay.burned       = 1;
 modelConfig.decay.burned_radius = 3; % Radius where we are going tu burn particles (in km)
 modelConfig.decay.collected    = 1;
+% TODO validate the sizes of turbulentDiff, diffusion and subSurfaceFraction with number of subsurface
 
 modelConfig.decay.exp_deg.byComponent  = threshold(95,[3, 6, 9, 12, 15, 18, 21, 24],modelConfig.timeStep);
 % This is just for memory allacation  (TODO make something smarter)
