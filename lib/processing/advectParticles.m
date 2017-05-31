@@ -28,15 +28,16 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
         lonP = allLon(currPartIndex);
 
         % Get the depth indices for the current particles
+        currDepthRelativeIndx = VF.depthsRelativeIndx(dIndx,:);
         currDepthIndx = VF.depthsIndx(dIndx,:);
 
         % Verify we are in the surface in order to incorporate the wind contribution
         if depth == 0 
-            U = VF.U(:,:,currDepthIndx(1))';
-            V = VF.V(:,:,currDepthIndx(1))';
+            U = VF.U(:,:,currDepthRelativeIndx(1))';
+            V = VF.V(:,:,currDepthRelativeIndx(1))';
 
-            UT2 = VF.UT2(:,:,currDepthIndx(1))';
-            VT2 = VF.VT2(:,:,currDepthIndx(1))';
+            UT2 = VF.UT2(:,:,currDepthRelativeIndx(1))';
+            VT2 = VF.VT2(:,:,currDepthRelativeIndx(1))';
 
             % Incorporate the force of the wind (using the rotated winds)
             U = U + VF.UWR*modelConfig.windcontrib;
@@ -46,26 +47,27 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             VT2 = VT2 + VF.VWRT2*modelConfig.windcontrib;
         else
             % If we are not in the surface, we need to verify if interpolatation for the proper depth is needed
-            if currDepthIndx(1) == currDepthIndx(2)
+            if currDepthRelativeIndx(1) == currDepthRelativeIndx(2)
                 % In this case the particles are exactly in one depth (no need to interpolate)
-                U = VF.U(:,:,currDepthIndx(1))';
-                V = VF.V(:,:,currDepthIndx(1))';
+                U = VF.U(:,:,currDepthRelativeIndx(1))';
+                V = VF.V(:,:,currDepthRelativeIndx(1))';
 
-                UT2 = VF.UT2(:,:,currDepthIndx(1))';
-                VT2 = VF.VT2(:,:,currDepthIndx(1))';
+                UT2 = VF.UT2(:,:,currDepthRelativeIndx(1))';
+                VT2 = VF.VT2(:,:,currDepthRelativeIndx(1))';
             else
                 % In this case we need to interpolate the currents to the proper Depth
                 range = VF.depths(currDepthIndx(2)) - VF.depths(currDepthIndx(1));
+        
                 distance = depth - VF.depths(currDepthIndx(1));
                 toMult = distance/range;
-                U = (VF.U(:,:,currDepthIndx(1)) + ...
-                        toMult.*(VF.U(:,:,currDepthIndx(2)) - VF.U(:,:,currDepthIndx(1))))';
-                V = (VF.V(:,:,currDepthIndx(1)) + ...
-                        toMult.*(VF.V(:,:,currDepthIndx(2)) - VF.V(:,:,currDepthIndx(1))))';
-                UT2 = (VF.UT2(:,:,currDepthIndx(1)) + ...
-                        toMult.*(VF.UT2(:,:,currDepthIndx(2)) - VF.UT2(:,:,currDepthIndx(1))))';
-                VT2 = (VF.VT2(:,:,currDepthIndx(1)) + ...
-                        toMult.*(VF.VT2(:,:,currDepthIndx(2)) - VF.VT2(:,:,currDepthIndx(1))))';
+                U = (VF.U(:,:,currDepthRelativeIndx(1)) + ...
+                        toMult.*(VF.U(:,:,currDepthRelativeIndx(2)) - VF.U(:,:,currDepthRelativeIndx(1))))';
+                V = (VF.V(:,:,currDepthRelativeIndx(1)) + ...
+                        toMult.*(VF.V(:,:,currDepthRelativeIndx(2)) - VF.V(:,:,currDepthRelativeIndx(1))))';
+                UT2 = (VF.UT2(:,:,currDepthRelativeIndx(1)) + ...
+                        toMult.*(VF.UT2(:,:,currDepthRelativeIndx(2)) - VF.UT2(:,:,currDepthRelativeIndx(1))))';
+                VT2 = (VF.VT2(:,:,currDepthRelativeIndx(1)) + ...
+                        toMult.*(VF.VT2(:,:,currDepthRelativeIndx(2)) - VF.VT2(:,:,currDepthRelativeIndx(1))))';
             end
         end
 

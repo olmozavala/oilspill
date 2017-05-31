@@ -1,7 +1,5 @@
 % In this new version, the objective is to make the code as efficient as possible
 function OilSpillModel(modelConfig)
-    %oceanFilePrefix  = 'hycom_2019_'; % File prefix for the ocean netcdf files
-    visualize = true; % Indicates if we want to visualize the results as the model runs.
 
     % La funcion cantidades_por_dia determina las distintas cantidades de petroleo
     % a partir de los datos del derrame en el archivo "datos_derrame.csv"
@@ -18,7 +16,7 @@ function OilSpillModel(modelConfig)
     Particles          = Particle.empty; % Start the array of particles empty
 
     %  Initialize the figure for visualization of the particles
-    if visualize
+    if modelConfig.visualize
         f=figure
         DrawGulfOfMexico();
         %% Animating particles
@@ -59,7 +57,7 @@ function OilSpillModel(modelConfig)
                     Particles = oilDegradation(Particles, modelConfig, spillData);
                 end
                 %  Visualize the current step
-                if visualize
+                if modelConfig.visualize
                     %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
                     LiveParticles = findobj(Particles, 'isAlive',true);
                     DeadParticles = findobj(Particles, 'isAlive',false);

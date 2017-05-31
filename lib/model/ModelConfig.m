@@ -19,6 +19,7 @@ classdef ModelConfig
       diffusion          % Variance of the diffusion (in km) when initializing particles 
       diffusionLatDeg    % Variance of the diffusion (in degrees latitude) when initializing particles 
       diffusionLonDeg    % Variance of the diffusion (in degrees longitude) when initializing particles 
+      visualize          % Boolean variable that indicates if we want to visualize the results in realtime
       R                  % Mean radious of earth
    end
    % TODO constructor that initializes all these fields and validates the input

@@ -15,6 +15,7 @@ classdef VectorFields
       LON % Longitude meshgrid of the currents
       depths % Array of depths corresponding to U and V
       depthsIndx% Array of indexes corresponding to closest indexes at each depth of the particles
+      depthsRelativeIndx% Array of indexes corresponding to closest indexes at each depth of the particles for cutted U and V
   end
   properties (Access = private)
       depthsIndxLocal% Array of indexes corresponding to closest indexes at each depth of the particles
@@ -48,12 +49,12 @@ classdef VectorFields
   methods
 	   function obj = VectorFields()
          % Constructor of VectorFields, only initializes some variables.
-			obj.currHour = 0; % TODO, currently only works starting at hour 0
-			obj.currDay = -1;
-                  obj.atmFilePrefix = 'Dia_'; % File prefix for the atmospheric netcdf files
-                  obj.oceanFilePrefix = 'archv.2010_'; % File prefix for the ocean netcdf files
-                  obj.uvar = 'U';
-                  obj.vvar = 'V';
+            obj.currHour = 0; % TODO, currently only works starting at hour 0
+            obj.atmFilePrefix = 'Dia_'; % File prefix for the atmospheric netcdf files
+            obj.oceanFilePrefix = 'archv.2010_'; % File prefix for the ocean netcdf files
+            obj.uvar = 'U';
+            obj.vvar = 'V';
+            obj.currDay = -1;
 	   end
          function obj = initDepthsIndexes(obj,readOceanFile, readOceanFileT2, readWindFile, modelConfig)
             % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
@@ -62,106 +63,23 @@ classdef VectorFields
             obj.depths = double(ncread(readOceanFile,'Depth'));
             
             % Setting the minimum and maximum indexes for the depths of the particles
+            idx = 1;
+            for currDepth = modelConfig.depths
+                floorIdx = find( currDepth >= obj.depths, 1, 'last');
+                ceilIdx = find( obj.depths >= currDepth, 1, 'first');
+                % These are the index 
+                obj.depthsIndx(idx,:) = [floorIdx, ceilIdx];
 
-            % Setting the minimum index
-            [val, indx] = min(abs(obj.depths - modelConfig.depths(1)));
-            if val == 0
-                obj.depthsMinMax(1) = indx;
-            else
-                % Verify we are on the right side of the closest depth
-                if (obj.depths(indx) - modelConfig.depths(1)) < 0
-                    obj.depthsMinMax(1) = indx;
+                % These will be the relative indexes, these are the ones used by advecta particles.
+                if floorIdx == ceilIdx
+                    obj.depthsRelativeIndx(idx,:) = [idx, idx];
                 else
-                    obj.depthsMinMax(1) = max(indx-1,0);
+                    obj.depthsRelativeIndx(idx,:) = [idx, idx+1];
                 end
+                idx = idx + 1;
             end
-
-            % Setting the Maximum index
-            [val, indx] = min(abs(obj.depths - modelConfig.depths(end)));
-            if val == 0
-                obj.depthsMinMax(2) = indx;
-            else
-                % Verify we are on the right side of the closest depth
-                if (obj.depths(indx) - modelConfig.depths(1)) > 0
-                    obj.depthsMinMax(2) = indx;
-                else
-                    obj.depthsMinMax(2) = min(indx+1,length(obj.depths));
-                end
-            end
-
-            % Assigning the closest indexes for each depth
-            currIndx = 1;
-            for currDepth= modelConfig.depths
-                [val, indx] = min(abs(obj.depths - currDepth));
-                if val == 0
-                    % For this depth we only need one index, because is the exact depth
-                    obj.depthsIndxLocal(currIndx,:) = [indx, indx];
-                    obj.depthsIndx = obj.depthsIndxLocal;
-                else
-                    % Verify we are on the right side of the closest depth
-                    if (obj.depths(indx) - currDepth) > 0
-                        obj.depthsIndxLocal(currIndx,:) = [max(indx-1,0), indx];
-                    else
-                        obj.depthsIndxLocal(currIndx,:) = [indx, min(indx+1,obj.depthsMinMax(2)) ];
-                    end
-                    obj.depthsIndx = obj.depthsIndxLocal;
-                end
-                currIndx = currIndx + 1;
-            end
-
-            [obj.LON, obj.LAT] = meshgrid(lon,lat);
-
-            % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
-            lat = double(ncread(readOceanFile,'Latitude'));
-            lon = double(ncread(readOceanFile,'Longitude'));
-            obj.depths = double(ncread(readOceanFile,'Depth'));
-            % Setting the minimum and maximum indexes for the depths of the particles
-
-            % Setting the minimum index
-            [val, indx] = min(abs(obj.depths - modelConfig.depths(1)));
-            if val == 0
-                obj.depthsMinMax(1) = indx;
-            else
-                % Verify we are on the right side of the closest depth
-                if (obj.depths(indx) - modelConfig.depths(1)) < 0
-                    obj.depthsMinMax(1) = indx;
-                else
-                    obj.depthsMinMax(1) = max(indx-1,0);
-                end
-            end
-
-            % Setting the Maximum index
-            [val, indx] = min(abs(obj.depths - modelConfig.depths(end)));
-            if val == 0
-                obj.depthsMinMax(2) = indx;
-            else
-                % Verify we are on the right side of the closest depth
-                if (obj.depths(indx) - modelConfig.depths(1)) > 0
-                    obj.depthsMinMax(2) = indx;
-                else
-                    obj.depthsMinMax(2) = min(indx+1,length(obj.depths));
-                end
-            end
-
-            % Assigning the closest indexes for each depth
-            currIndx = 1;
-            for currDepth= modelConfig.depths
-                [val, indx] = min(abs(obj.depths - currDepth));
-                if val == 0
-                    % For this depth we only need one index, because is the exact depth
-                    obj.depthsIndxLocal(currIndx,:) = [indx, indx];
-                    obj.depthsIndx = obj.depthsIndxLocal;
-                else
-                    % Verify we are on the right side of the closest depth
-                    if (obj.depths(indx) - currDepth) > 0
-                        obj.depthsIndxLocal(currIndx,:) = [max(indx-1,0), indx];
-                    else
-                        obj.depthsIndxLocal(currIndx,:) = [indx, min(indx+1,obj.depthsMinMax(2)) ];
-                    end
-                    obj.depthsIndx = obj.depthsIndxLocal;
-                end
-                currIndx = currIndx + 1;
-            end
+            % Used to read the files min and max depth values
+            obj.depthsMinMax = [find( modelConfig.depths(1) >= obj.depths, 1, 'last'), find( obj.depths >= modelConfig.depths(end), 1, 'first')];
 
             [obj.LON, obj.LAT] = meshgrid(lon,lat);
          end
@@ -222,19 +140,14 @@ classdef VectorFields
                 % Reading currents for current day
                 obj.UD = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 obj.VD = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
-                % TODO here we should cut U and V to the proper depth values only and adjust depthsMinMax values
+                % Cut U and V to the only depth levels that we are going to use
+                obj.UD = obj.UD(:,:,unique(obj.depthsRelativeIndx));
+                obj.VD = obj.VD(:,:,unique(obj.depthsRelativeIndx));
 
                 % Reading winds for current day
                 TempUW = double(ncread(readWindFile,'U_Viento'));
                 TempVW = double(ncread(readWindFile,'V_Viento'));
                 [obj.UWRD, obj.VWRD] = rotangle(TempUW', TempVW');
-                % TODO here we should cut U and V to the proper depth values only and adjust depthsMinMax values
-
-               % tidx = 1;
-               % for thisDepth = [unique(obj.depthsIndxLocal)]
-               %     obj.UD(:,:,tidx) = double(ncread(readOceanFile,obj.uvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
-               %     obj.VD(:,:,tidx) = double(ncread(readOceanFile,obj.vvar,[1, 1, thisDepth],[Inf, Inf, obj.depthsMinMax(2)]));
-               % end
             end
 
             % Verify if we need to read the winds for the next day
@@ -288,7 +201,9 @@ classdef VectorFields
             if readOceanT2
                 obj.UDT2 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 obj.VDT2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
-                % TODO here we should cut U and V to the proper depth values only and adjust depthsMinMax values
+                % Cut U and V to the only depth levels that we are going to use
+                obj.UDT2 = obj.UDT2(:,:,unique(obj.depthsRelativeIndx));
+                obj.VDT2 = obj.VDT2(:,:,unique(obj.depthsRelativeIndx));
             end
 
             % Making the interpolation to the proper 'timesteps'
