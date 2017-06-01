@@ -115,6 +115,7 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
         end
+
         % Increment the index for the current depth value
         dIndx = dIndx + 1;
     end
