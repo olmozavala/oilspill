@@ -138,11 +138,11 @@ classdef VectorFields
             % (this will only happens the first time of all)
             if firstRead
                 % Reading currents for current day
-                obj.UD = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
-                obj.VD = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                T1 = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                T2 = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 % Cut U and V to the only depth levels that we are going to use
-                obj.UD = obj.UD(:,:,unique(obj.depthsRelativeIndx));
-                obj.VD = obj.VD(:,:,unique(obj.depthsRelativeIndx));
+                obj.UD = rot90(T1(:,:,unique(obj.depthsRelativeIndx)),3);
+                obj.VD = rot90(T2(:,:,unique(obj.depthsRelativeIndx)),3);
 
                 % Reading winds for current day
                 TempUW = double(ncread(readWindFile,'U_Viento'));
@@ -199,11 +199,11 @@ classdef VectorFields
             % ----------- Reading and organizing the currents ----------------
             % Verify if we need to read the currents of the next day
             if readOceanT2
-                obj.UDT2 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
-                obj.VDT2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                T1 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
+                T2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 % Cut U and V to the only depth levels that we are going to use
-                obj.UDT2 = obj.UDT2(:,:,unique(obj.depthsRelativeIndx));
-                obj.VDT2 = obj.VDT2(:,:,unique(obj.depthsRelativeIndx));
+                obj.UDT2 = rot90(T1(:,:,unique(obj.depthsRelativeIndx)),3);
+                obj.VDT2 = rot90(T2(:,:,unique(obj.depthsRelativeIndx)),3);
             end
 
             % Making the interpolation to the proper 'timesteps'
