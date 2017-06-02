@@ -17,27 +17,30 @@ if modelConfig.decay.evaporate == 1 || modelConfig.decay.exp_degradation == 1 ||
     % How many particles we have
     numParticles = length(LiveParticles);
 
-    % Shufle the particles
-    random_particles = randperm(numParticles);
+    % Ordered indexes
+    particlesIndex = 1:numParticles;
 
     % Degradated
     if modelConfig.decay.exp_degradation == 1
 
         % Select all the components for the live particles
-        ParticleComponents=  [LiveParticles.component];
+        allComponents=  [LiveParticles.component];
 
         % Choose how many will be biodegradated
-        partToKill= rand(1, numParticles) > modelConfig.decay.exp_deg.byComponent(ParticleComponents);
+        partToKill= find(rand(1, numParticles) > modelConfig.decay.exp_deg.byComponent(allComponents));
 
         % Modify the selected particles    
-        for finalIndex = random_particles(partToKill)
+        for finalIndex = partToKill
             LiveParticles(finalIndex).isAlive = 0;
             LiveParticles(finalIndex).status  = 'D';
         end
 
         % Remove the particles that have been already degraded
-        random_particles =  random_particles(~partToKill);
+        particlesIndex = particlesIndex(~partToKill);
     end
+
+    % Shufle the particles
+    random_particles = particlesIndex(randperm(length(particlesIndex)));
 
     % Compute the number of particles to evaporate, burn and recover (statistically) from fractional value
     toEvaporate = floor( spillData.ts_evaporated ) +  (( spillData.ts_evaporated - floor( spillData.ts_evaporated ) ) > rand(1));

@@ -17,20 +17,15 @@ function OilSpillModel(modelConfig)
 
     %  Initialize the figure for visualization of the particles
     if modelConfig.visualize
-        f=figure
-        DrawGulfOfMexico();
-        %% Animating particles
-        view(-10.5,28) % Define the angle of view
-        zoom(2)
-        axis tight;
-        set(gca,'BoxStyle','full','Box','on')
+        currentVis = VisualizeParticles;
+        currentVis.drawGulf();
     end
 
     FinalParticles = {};
     startDay = datevec2doy(datevec(modelConfig.startDate));
     endDay = datevec2doy(datevec(modelConfig.endDate))
     for currDay = startDay:endDay
-        sprintf('---- Day %d -----', (currDay - startDay))
+        sprintf('---- Day %d -- %d -----', (currDay - startDay), currDay)
         
         % Verify we have some data in this day
         if any(FechasDerrame == currDay)
@@ -41,8 +36,8 @@ function OilSpillModel(modelConfig)
         
         if advectingParticles
             for currHour = 0:modelConfig.timeStep:24-modelConfig.timeStep
-                currTime = toSerialDate(modelConfig.startDate.Year, currHour, currDay);
-                nextTime = toSerialDate(modelConfig.startDate.Year, currHour+modelConfig.timeStep, currDay);
+                currTime = toSerialDate(modelConfig.startDate.Year, currDay, currHour);
+                nextTime = toSerialDate(modelConfig.startDate.Year, currDay, currHour+modelConfig.timeStep);
                 if advectingParticles
                     % Add the proper number of particles for this time step
                     Particles = initParticles(Particles, spillData, modelConfig, currDay, currHour);
@@ -58,34 +53,9 @@ function OilSpillModel(modelConfig)
                 end
                 %  Visualize the current step
                 if modelConfig.visualize
-                    %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
-                    LiveParticles = findobj(Particles, 'isAlive',true);
-                    DeadParticles = findobj(Particles, 'isAlive',false);
-                    if  currDay - startDay == 0
-                        hold on
-                        f = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
-                            -[LiveParticles.lastDepth],9,modelConfig.colorByComponent([LiveParticles.component],:),'filled');
-                        
-                        %h = scatter3([DeadParticles.lastLon], [DeadParticles.lastLat], ...
-                        %-[DeadParticles.lastDepth],9,'r','filled');
-                        f.XDataMode = 'manual';
-                        h.XDataMode = 'manual';
-                        drawnow
-                    else
-                        f.XData = [LiveParticles.lastLon];
-                        f.YData = [LiveParticles.lastLat];
-                        f.ZData = -[LiveParticles.lastDepth];
-                        f.CData = modelConfig.colorByComponent([LiveParticles.component],:);
-                        
-                        %h.XData = [DeadParticles.lastLon];
-                        %h.YData = [DeadParticles.lastLat];
-                        %h.ZData = -[DeadParticles.lastDepth];
-                        refreshdata
-                        drawnow
-                    end
-                    
+                    %currentVis = currentVis.drawLiveParticles3D(Particles, modelConfig, currTime);
+                    currentVis = currentVis.drawLiveParticles2D(Particles, modelConfig, currTime);
                 end
-                %pause(10)
             end
         end
         

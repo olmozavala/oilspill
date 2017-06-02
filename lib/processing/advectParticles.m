@@ -71,7 +71,6 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             end
         end
 
-
         % Interpolate the U and V fields for the particles positions
         Upart = interp2(VF.LON, VF.LAT, U, lonP, latP);
         Vpart = interp2(VF.LON, VF.LAT, V, lonP, latP);
@@ -104,7 +103,7 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             particle.currTimeStep = particle.currTimeStep + 1;
             particle.lats(particle.currTimeStep) = newLatP(idxPart);
             particle.lons(particle.currTimeStep) = newLonP(idxPart);
-            %particle.depths(particle.currTimeStep) = particle.lastDepth;
+            particle.depths(particle.currTimeStep) = particle.lastDepth;
             %particle.lastDepth = particle.lastDepth;% If someday we would like to change the depth
 
             particle.lastLat = newLatP(idxPart);

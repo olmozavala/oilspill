@@ -141,8 +141,8 @@ classdef VectorFields
                 T1 = double(ncread(readOceanFile,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 T2 = double(ncread(readOceanFile,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 % Cut U and V to the only depth levels that we are going to use
-                obj.UD = rot90(T1(:,:,unique(obj.depthsRelativeIndx)),3);
-                obj.VD = rot90(T2(:,:,unique(obj.depthsRelativeIndx)),3);
+                obj.UD = fliplr(rot90(T1(:,:,unique(obj.depthsIndx)),3));
+                obj.VD = fliplr(rot90(T2(:,:,unique(obj.depthsIndx)),3));
 
                 % Reading winds for current day
                 TempUW = double(ncread(readWindFile,'U_Viento'));
@@ -202,8 +202,8 @@ classdef VectorFields
                 T1 = double(ncread(readOceanFileT2,obj.uvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 T2 = double(ncread(readOceanFileT2,obj.vvar,[1, 1, obj.depthsMinMax(1)],[Inf, Inf, obj.depthsMinMax(2)]));
                 % Cut U and V to the only depth levels that we are going to use
-                obj.UDT2 = rot90(T1(:,:,unique(obj.depthsRelativeIndx)),3);
-                obj.VDT2 = rot90(T2(:,:,unique(obj.depthsRelativeIndx)),3);
+                obj.UDT2 = fliplr(rot90(T1(:,:,unique(obj.depthsIndx)),3));
+                obj.VDT2 = fliplr(rot90(T2(:,:,unique(obj.depthsIndx)),3));
             end
 
             % Making the interpolation to the proper 'timesteps'

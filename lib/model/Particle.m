@@ -10,11 +10,12 @@ classdef Particle < handle
       isAlive % Bool Indicates if the particle is still alive
       status % String A String that indicates the status of the particle. Each model should define it
       lastDepth % Float that indicates the last depth of the particle
+      lastDepthIdx % Integer that indicates the last depth (its index) of the particle
       lastLat % Float that indicates the last lat of the particle
       lastLon % Float that indicates the last lat of the particle
    end
 	methods
-	   function obj = Particle(startDate, initSize,  diffusionLat, diffusionLon, component, lat, lon, depth)
+	   function obj = Particle(startDate, initSize,  diffusionLat, diffusionLon, component, lat, lon, depth, depthIdx)
             obj.dates = nan(initSize,1);
             obj.lats = nan(initSize,1);
             obj.lons = nan(initSize,1);
@@ -32,6 +33,7 @@ classdef Particle < handle
             obj.lons(1) = t2;
             obj.depths(1) = depth;
             obj.lastDepth = depth;
+            obj.lastDepthIdx = depthIdx;
             obj.lastLat = t1;
             obj.lastLon=  t2;
 	   end

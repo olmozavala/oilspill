@@ -14,21 +14,27 @@ classdef ModelConfig
       initPartSize       % How big does we initalize the vector size of particles lats, lons, etc
       totComponents      % Total number of components
       colorByComponent   % Colors by each component
+      colorByDepth       % Colors by each depth
       windcontrib        % The percetaje contribution of the windo into the model
       turbulentDiff      % Value of the rubulent diffusion (when advecting particles)
       diffusion          % Variance of the diffusion (in km) when initializing particles 
       diffusionLatDeg    % Variance of the diffusion (in degrees latitude) when initializing particles 
       diffusionLonDeg    % Variance of the diffusion (in degrees longitude) when initializing particles 
       visualize          % Boolean variable that indicates if we want to visualize the results in realtime
+      saveImages         % Boolean varaible that indidcates if we are saving the figures to images
+      outputFolder       % String with the path of the output folder
       R                  % Mean radious of earth
    end
    % TODO constructor that initializes all these fields and validates the input
    methods
+    function obj = ModelConfig()
+        obj.R = 6371e+03; % Mean radious of the earth
+    end
     function obj = set.diffusion(obj, diffVal)
         % Setter function for the variable diffusion. It automatically updates diffusionLatDeg and diffusionLonDeg
         obj.diffusion = diffVal; 
-        obj.diffusionLatDeg = km2deg(diffVal./2); % TODO compute diffusion depending on lat and lon
-        obj.diffusionLonDeg = km2deg(diffVal./2); % TODO compute diffusion depending on lat and lon
+        obj.diffusionLatDeg = mtr2deg(1000*diffVal./2,obj.lat,'lat_deg',obj.R); 
+        obj.diffusionLonDeg = mtr2deg(1000*diffVal./2,obj.lat,'lon_deg',obj.R);
     end
     function obj = set.timeStep(obj, ts)
         % Setter function for the variable time step. Automatically computes time step in seconds

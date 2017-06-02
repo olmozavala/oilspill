@@ -32,7 +32,7 @@ function particles = initParticles(particles, spillData, modelConfig, currDay, c
             totParticlesToInit = floor(fracParticles) + ( (fracParticles - floor(fracParticles)) > rand(1) );
             for numPart = 0:totParticlesToInit
                 particles(idxPart) = Particle(startDate, modelConfig.initPartSize, modelConfig.diffusionLatDeg(depthIdx), modelConfig.diffusionLonDeg(depthIdx), component, modelConfig.lat, modelConfig.lon, ...
-                                            modelConfig.depths(depthIdx));
+                                            modelConfig.depths(depthIdx), depthIdx);
                 idxPart = idxPart + 1;
             end
         end
