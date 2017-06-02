@@ -97,22 +97,24 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
 
         % Iterate over the particles and add the new positions
         for idxPart = 1:numParticles
-            % Get current particle
+            % Get current particle id
             particle = LiveParticles(originalIndexes(idxPart));
+            currTimeStep = particle.currTimeStep + 1;
             % Add in one the current time step of the particle
-            particle.currTimeStep = particle.currTimeStep + 1;
-            particle.lats(particle.currTimeStep) = newLatP(idxPart);
-            particle.lons(particle.currTimeStep) = newLonP(idxPart);
-            particle.depths(particle.currTimeStep) = particle.lastDepth;
+            particle.currTimeStep = currTimeStep;
+            particle.lats(currTimeStep) = newLatP(idxPart);
+            particle.lons(currTimeStep) = newLonP(idxPart);
+            particle.depths(currTimeStep) = particle.lastDepth;
             %particle.lastDepth = particle.lastDepth;% If someday we would like to change the depth
 
             particle.lastLat = newLatP(idxPart);
             particle.lastLon = newLonP(idxPart);
 
             % Update the next time
-            particle.dates(particle.currTimeStep) = nextTime;
+            particle.dates(currTimeStep) = nextTime;
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
+    
         end
 
         % Increment the index for the current depth value
