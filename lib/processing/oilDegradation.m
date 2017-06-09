@@ -8,8 +8,8 @@ if modelConfig.decay.evaporate == 1 || modelConfig.decay.exp_degradation == 1 ||
     parts_evaporated = 0;
     parts_burned     = 0;
     parts_collected  = 0;
-    % TODO modify km2deg to take into account the lattitude where we are
-    burning_radius = km2deg(modelConfig.decay.burned_radius);
+
+    burning_radius = modelConfig.decay.burned_radius;
 
     % Get the live particles
     LiveParticles = findobj(Particles, 'isAlive',true);
@@ -67,7 +67,7 @@ if modelConfig.decay.evaporate == 1 || modelConfig.decay.exp_degradation == 1 ||
             a = sin(delta_lat/2)^2 + cos(deg2rad(modelConfig.lat)) *...
                 cos(deg2rad(lat_p)) * sin(delta_lon/2)^2;
             c = 2 * atan2(sqrt(a),sqrt(1-a));
-            distanceFromSource = 6371 * c;
+            distanceFromSource = R/1000 * c;
             if distanceFromSource <= burning_radius
                 LiveParticles(partIndx).isAlive = 0;
                 LiveParticles(partIndx).status  = 'B';
