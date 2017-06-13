@@ -13,6 +13,7 @@ classdef Particle < handle
       lastDepthIdx % Integer that indicates the last depth (its index) of the particle
       lastLat % Float that indicates the last lat of the particle
       lastLon % Float that indicates the last lat of the particle
+      pele %element of particle
    end
 	methods
 	   function obj = Particle(startDate, initSize,  diffusionLat, diffusionLon, component, lat, lon, depth, depthIdx)
@@ -36,6 +37,7 @@ classdef Particle < handle
             obj.lastDepthIdx = depthIdx;
             obj.lastLat = t1;
             obj.lastLon=  t2;
+	    obj.pele = 0;
 	   end
 	end
 end
