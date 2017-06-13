@@ -51,7 +51,7 @@ modelConfig.decay.exp_degradation = 1; % Exponential degradation
 % true | false   Set true for visualizing the results as the model runs
 modelConfig.visualize        = true;
 %3D | 2D | coastline --- Visualization Type-------------------------------%
-modelConfig.vistype          = 'coastline';
+modelConfig.vistype          = '3D';
 % true | false   Set true for saving the generated images
 modelConfig.saveImages       = false;
 % Create the colors of the oil
