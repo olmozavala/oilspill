@@ -26,11 +26,11 @@ classdef VectorFieldsADCIRC
         %===============ADCIRC EXCLUSIVE==============
         ELE % Nodes of an Element
         E2E5 %Table of the Elements that surround an element at 5 levels
-        PELE % Element where the Particle is
         N2E  % Table of the Elements that surround a node
         CostaX % Node longitude of Coastline of mesh defined by FORT.14 (Longitude).
         CostaY % Node latitude of Coastline of mesh defined by FORT.14 (Latitude))
         TR %Triangulation
+        MeshInterp %Interp object for future interpolation
         %==============================================
     end
     properties (Access = private)
@@ -173,6 +173,8 @@ classdef VectorFieldsADCIRC
                 clear Costa
                 P = [obj.LON obj.LAT];
                 obj.TR = triangulation(obj.ELE,P);
+                obj.MeshInterp = interpTRI1init(obj.LON,obj.LAT,zeros(length(obj.LON),1));
+
                 %==============================================
                 
                 %                 obj.PELE = pele';
