@@ -15,9 +15,9 @@ modelConfig.endDate   = datetime(2010,04,28);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
-modelConfig.barrelsPerParticle = 100;
+modelConfig.barrelsPerParticle = 500;
 %----------------------- Lagrangian time step (h) ------------------------%
-modelConfig.timeStep = 6;
+modelConfig.timeStep = 2;
 %--------------------------- Simulation depths ---------------------------%
 modelConfig.depths = [0]; % First index MUST be 0 (surface)
 %------------------- Oil classes proportions per depth -------------------%
@@ -65,7 +65,7 @@ modelConfig.colorByComponent = [...
     [1    0    1   ];
     [0.7  0    0.70]];
 modelConfig.colorByDepth     = [...
-    [0    0    1   ]];
+    [1    1    1   ]];
 %-------------------- Initial particle vector size -----------------------%
 %----------------- This is just for memory allocation --------------------%
 if modelConfig.decay.exp_degradation
