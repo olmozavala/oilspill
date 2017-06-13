@@ -11,6 +11,8 @@ modelConfig.lon = -88.366;
 %----------------------- Spill timing (yyyy,mm,dd) -----------------------%
 modelConfig.startDate = datetime(2010,08,22);
 modelConfig.endDate   = datetime(2010,09,24);
+%hycom | adcirc--------- Model Type--------------- -----------------------%
+modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
 modelConfig.barrelsPerParticle = 10;
 %----------------------- Lagrangian time step (h) ------------------------%
@@ -48,6 +50,8 @@ modelConfig.decay.exp_degradation = 1; % Exponential degradation
 %------------------------------ Plotting ---------------------------------%
 % true | false   Set true for visualizing the results as the model runs
 modelConfig.visualize        = true;
+%3D | 2D | coastline --- Visualization Type-------------------------------%
+modelConfig.vistype          = 'coastline';
 % true | false   Set true for saving the generated images
 modelConfig.saveImages       = false;
 % Create the colors of the oil
