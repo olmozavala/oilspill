@@ -12,7 +12,7 @@ modelConfig.lon = -88.366;
 modelConfig.startDate = datetime(2010,08,22);
 modelConfig.endDate   = datetime(2010,09,24);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
-modelConfig.model              = 'adcirc';
+modelConfig.model              = 'hycom';
 %---------------- Oil barrels representing one particle ------------------%
 modelConfig.barrelsPerParticle = 10;
 %----------------------- Lagrangian time step (h) ------------------------%
