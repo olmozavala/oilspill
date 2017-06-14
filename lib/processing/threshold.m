@@ -1,10 +1,15 @@
-% thresholds = threshold(percentage,days_percent_decay,time_step)
+% [dailyDecayRates,thresholds] = threshold(exp_deg_Percentage,exp_deg_Percentage_Days,time_step)
 %
-% percentage         = Percentage of oil to be removed on the days
+% exp_deg_Percentage = Percentage of oil to be removed on the days
 %                      indicated in days_percentage_decay.
-% days_percent_decay = Day for each oil class to which the indicated oil
+%
+% exp_deg_Days       = Day for each oil class to which the indicated oil
 %                      percentage will be removed.
+%
 % time_step          = The time step in hours of the Lagrangian model.
+%
+% dailyDecayRates    = Dacay rate in the exponential degradation equation
+%                      considering that time (t) is in days.
 %
 % The output (thresholds) is used by oilDegradation.m in order to produce
 % exponential degradation of particles. A uniform random number from 0 to 1
@@ -38,13 +43,15 @@
 %
 %   Substituting k:  threshold = 1 + ln(0.05)/t
 %
-function thresholds  = threshold(percentage,days_percent_decay,time_step)
+function [thresholds,dailyDecayRates]  = threshold(exp_deg_Percentage,exp_deg_Days,time_step)
+  % Compute daily decay rates
+  dailyDecayRates = -log(1-exp_deg_Percentage/100)./exp_deg_Days;
   % Convert days_percent_decay to hours
-  hrs_percent_decay  = days_percent_decay.*24;
+  hrs_percent_decay  = exp_deg_Days.*24;
   % Adjust hrs_percent_decay to the time_step
   time_percent_decay = hrs_percent_decay./time_step;
   % Compute instant decay rates (k)
-  k = -log(1-percentage/100)./time_percent_decay;
+  k = -log(1-exp_deg_Percentage/100)./time_percent_decay;
   % Compute thresholds
   thresholds = 1-k;
 end

@@ -1,9 +1,8 @@
 function [FechasDerrame,SurfaceOil,Burned,VE,VNW,VDB] = cantidades_por_dia
 
 datos_derrame = load('datos_derrame.csv');
-Mes  = datos_derrame(:,1);
-Dia  = datos_derrame(:,2);
-Anio = datos_derrame(:,3);
+YearMonthDay = datos_derrame(:,[3,1,2]);
+YearMonthDayHHMMSS = [YearMonthDay,zeros(size(YearMonthDay,1),3)];
 Discharge   = datos_derrame(:,4); % EstimatedDischarge
 Burned  = datos_derrame(:,5); % OilBurned
 Collected  = datos_derrame(:,6); % OilCollected
@@ -42,10 +41,7 @@ VE = k4*Z + k5*W + k7*VDB/(1-k7); % Evaporated oil
 % VS = netSpilled - VDB - VNW - Burned - VE - VNS; % other oil
 % VS(VS<0) = 0;
 % VDS = min(20*k3*VCS,VS); %Chemical dispersed oil near the surface (checar)
-FechasDerrame = nan(1,length(Mes));
-for ii=1:length(Mes)
-    FechasDerrame(ii) = fecha2jul(Mes(ii), Dia(ii), Anio(ii));
-end
+FechasDerrame = datevec2doy(YearMonthDayHHMMSS)';
 % Escenario derrame
 SurfaceOil = netSpilled - VDB; % Petroleo neto derramado - petroleo disperso subsuperficialmente
 end
