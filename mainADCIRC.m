@@ -65,7 +65,7 @@ modelConfig.colorByComponent = [...
     [1    0    1   ];
     [0.7  0    0.70]];
 modelConfig.colorByDepth     = [...
-    [0    0    1   ]];
+    [1    1    1   ]];
 %-------------------- Initial particle vector size -----------------------%
 %----------------- This is just for memory allocation --------------------%
 if modelConfig.decay.exp_degradation

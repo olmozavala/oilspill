@@ -214,7 +214,7 @@ classdef VisualizeParticles
                 drawnow
             end
             if modelConfig.saveImages
-                saveas(obj.myf, strcat(modelConfig.outputFolder , 'Comp', datestr(currTime,'YYYY-mm-DD_HH')),'jpg');
+                print('-r200',strcat(modelConfig.outputFolder , 'Comp', datestr(currTime,'YYYY-mm-DD_HH')),'-djpeg99');
             end
         end
     end

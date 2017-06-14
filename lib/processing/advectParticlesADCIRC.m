@@ -35,7 +35,7 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
     
     %---------ADCIRC EXCLUSIVE---------------------
     % Get Last Element position of the Particles
-    pele = [LiveParticles.pele];
+%     pele = [LiveParticles.pele];
     %==============================================
     
     % Iterate over the different depths
@@ -97,12 +97,12 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
             end
         end
         
-        %---------ADCIRC EXCLUSIVE---------------------
-        %Create interpolation object for this depth, this is used with
-        %interpTRI1p.
-        MeshInterpU = interpTRI1init(VF.LON,VF.LAT,VF.U);
-        MeshInterpV = interpTRI1init(VF.LON,VF.LAT,VF.V);
-        %==============================================
+%         %---------ADCIRC EXCLUSIVE---------------------
+%         %Create interpolation object for this depth, this is used with
+%         %interpTRI1p.
+%         MeshInterpU = interpTRI1init(VF.LON,VF.LAT,zeros(length(VF.LON),1));
+%         MeshInterpV = interpTRI1init(VF.LON,VF.LAT,VF.V);
+%         %==============================================
         
         %---------ADCIRC EXCLUSIVE---------------------
         % Interpolate the U and V fields for the particles positions
@@ -112,8 +112,8 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
         %buggy.
 %         Upart = interpTRI1(VF.LON, VF.LAT, U, lonP, latP)
 %         Vpart = interpTRI1(VF.LON, VF.LAT, V, lonP, latP)  
-        Upart = interpTRI1p(U, lonP, latP, MeshInterpU);
-        Vpart = interpTRI1p(V, lonP, latP, MeshInterpV);
+        Upart = interpTRI1p(U, lonP, latP, VF.MeshInterp);
+        Vpart = interpTRI1p(V, lonP, latP, VF.MeshInterp);
 %         Upart = interpTRI2(VF.LON, VF.LAT, VF.ELE, pele, U, lonP, latP)
 %         Vpart = interpTRI2(VF.LON, VF.LAT, VF.ELE, pele, V, lonP, latP)  
         %==============================================
@@ -133,8 +133,8 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
         %Same as the interpolation above.
 %         UhalfPart = interpTRI1(VF.LON, VF.LAT, Uhalf, tempK2Lon, tempK2lat)
 %         VhalfPart = interpTRI1(VF.LON, VF.LAT, Vhalf, tempK2Lon, tempK2lat)  
-        UhalfPart = interpTRI1p(Uhalf, tempK2Lon, tempK2lat, MeshInterpU);
-        VhalfPart = interpTRI1p(Vhalf, tempK2Lon, tempK2lat, MeshInterpV);
+        UhalfPart = interpTRI1p(Uhalf, tempK2Lon, tempK2lat, VF.MeshInterp);
+        VhalfPart = interpTRI1p(Vhalf, tempK2Lon, tempK2lat, VF.MeshInterp);
 %         UhalfPart = interpTRI2(VF.LON, VF.LAT, VF.ELE, pele, Uhalf, tempK2Lon, tempK2lat)
 %         VhalfPart = interpTRI2(VF.LON, VF.LAT, VF.ELE, pele, Vhalf, tempK2Lon, tempK2lat)
         %==============================================
@@ -176,16 +176,6 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
             
-            %---------ADCIRC EXCLUSIVE---------------------
-            %This loop checks if the particles have left their previous
-            %element when moved, and if they did it searches for the new
-            %position.
-            if ~(inside(particle.pele,particle.lastLon,particle.lastLat))
-                particle.pele = findTRIParticleIni2(newLonP(idxPart),newLatP(idxPart));
-%                 if (particle.pele == 0)
-%                     particle.isAlive = 0;
-%                     particle.status  = 'L';
-%                 end
             end
             %==============================================
             
