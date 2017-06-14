@@ -15,7 +15,7 @@ modelConfig.endDate   = datetime(2010,04,28);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
-modelConfig.barrelsPerParticle = 100;
+modelConfig.barrelsPerParticle = 500;
 %----------------------- Lagrangian time step (h) ------------------------%
 modelConfig.timeStep = 6;
 %--------------------------- Simulation depths ---------------------------%
