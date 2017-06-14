@@ -24,8 +24,8 @@ modelConfig.components         = [[.1 .1 .1 .1 .1 .1 .1 .3]; ...
 
 modelConfig.totComponents      = length(modelConfig.components(1,:)); 
 
-modelConfig.visualize          = false; % Indicates if we want to visualize the results as the model runs.
-modelConfig.saveImages         = false; % Indicate if we want to save the generated images
+modelConfig.visualize          = true; % Indicates if we want to visualize the results as the model runs.
+modelConfig.saveImages         = true; % Indicate if we want to save the generated images
 %modelConfig.colorByComponent   = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)% Creates the colors of the oil
 modelConfig.colorByComponent   = [ [1 0 0]; [.89 .69 .17]; [1 1 0]; [0 0 1]; [0 1 0]; [0 1 1]; [0 0 1]; [1 0 1];[.7 0 .7]];
 modelConfig.colorByDepth       = [ [0 0 1]; [1 0 0]; [1 1 0]; [0 1 0]; [0 1 1]];
