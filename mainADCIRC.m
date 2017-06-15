@@ -55,14 +55,14 @@ modelConfig.saveImages       = true;
 % Create the colors of the oil
 %modelConfig.colorByComponent = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)
 modelConfig.colorByComponent = [...
-    [79 170 126];
-    [163    97  199];
-    [113    177 63];
-    [197    93  147];
-    [154    144 65];
-    [101    136 205];
-    [208    129 61];
-    [202    83  82];
+    [79h/255, 170/255, 126/255];
+    [163/255, 97/255, 199/255];
+    [113/255, 177/255, 63/255];
+    [197/255, 93/255, 147/255];
+    [154/255, 144/255, 65/255];
+    [101/255, 136/255, 205/255];
+    [208/255, 129/255, 61/255];
+    [202/255, 83/255, 82/255];
     ];
 modelConfig.colorByDepth     = [...
     [1]];
