@@ -17,7 +17,7 @@ modelConfig.model              = 'hycom';
 %---------------- Oil barrels representing one particle ------------------%
 modelConfig.barrelsPerParticle = 10;
 %----------------------- Lagrangian time step (h) ------------------------%
-modelConfig.timeStep = 6;
+modelConfig.timeStep = 4;
 %--------------------------- Simulation depths ---------------------------%
 modelConfig.depths = [0,10,100,500,1100]; % First index MUST be 0 (surface)
 %------------------- Oil classes proportions per depth -------------------%

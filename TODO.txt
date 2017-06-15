@@ -1,0 +1,61 @@
+Currently we cannot advect particles from two different years. Because we are
+using Julian day. Modify it to make it work.
+
+Make a function that automatically creates the data.txt. The idea will be
+to set the information about the oilspill and automatically create the data file. 
+
+Add one TurbuletnDiffusion by depth
+
+Make the main in such a way that it chooses which VectorField to use.
+(for HYCOM, for ADSIRC, etc)
+
+Review cantidades_por_dia from the oilBudgetCalculator (esta bien?) 
+Merge cantidades_por_dia con OilSpillData
+
+------------------ Olmo -------------
+Agregar linea de costa
+Interpolar la batimetria 
+------------------ Olmo -------------
+
+Como guardar los resultados?
+
+Como generar ejecutables de maltab?
+
+Add visualization at the end of the run
+
+Modify main such that it uses one or other version of Vector field and Advecta
+
+Define the identation spaces and unify all the files
+
+Test speed chanigng isAlive to status in advecta line (6)
+
+How to start from a different hour that is not 0
+
+# Decide: barreslPerParticle or particlesPerBarrel (leave)
+
+# Decide: Permitir decidir el % de petroloe por componente (si)
+
+# km2degree Por grado (hacer una custom que considera la latitude)
+
+-- Julio
+# Comment function 'threshold' in main and in threshold.m
+
+# Move all the prefix and other var names to VectorFields
+# Pedir Oscar salida del HYCOM que se van a usar
+
+# Fechas
+
+---  Julio --------
+Parrafo de diferencias
+
+------------------ Interfaz Julio -------------
+Interfaz para version con clases
+Si se puede que grafique en la mima interfaz
+
+# Controles en Matlab (stop, play, rew)
+
+Interpolar la batimetria o usar la del netcdf
+------------------ rk4 in matlab -------------
+*) Hacer una dimension pero discreto
+*) Hacer en dos dimensiones
+*) Hacer en dos dimensiones discreto
