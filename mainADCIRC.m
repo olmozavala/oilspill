@@ -10,14 +10,14 @@ modelConfig.outputFolder = outputFolder;
 modelConfig.lat =  19.1965;
 modelConfig.lon = -96.08;
 %----------------------- Spill timing (yyyy,mm,dd) -----------------------%
-modelConfig.startDate = datetime(2010,04,23);
+modelConfig.startDate = datetime(2010,04,25);
 modelConfig.endDate   = datetime(2010,04,28);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
 modelConfig.barrelsPerParticle = 100;
 %----------------------- Lagrangian time step (h) ------------------------%
-modelConfig.timeStep = 1;
+modelConfig.timeStep = 6;
 %--------------------------- Simulation depths ---------------------------%
 modelConfig.depths = [0]; % First index MUST be 0 (surface)
 %------------------- Oil classes proportions per depth -------------------%
@@ -55,14 +55,14 @@ modelConfig.saveImages       = true;
 % Create the colors of the oil
 %modelConfig.colorByComponent = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)
 modelConfig.colorByComponent = [...
-    [79h/255, 170/255, 126/255];
-    [163/255, 97/255, 199/255];
-    [113/255, 177/255, 63/255];
-    [197/255, 93/255, 147/255];
-    [154/255, 144/255, 65/255];
-    [101/255, 136/255, 205/255];
-    [208/255, 129/255, 61/255];
-    [202/255, 83/255, 82/255];
+    [0/255, 51/255, 128/255];
+    [0/255, 117/255, 220/255];
+    [153/255, 63/255, 0/255];
+    [76/255, 0/255, 92/255];
+    [255/255, 80/255, 5/255];
+    [153/255, 0/255, 0/255];
+    [66/255, 102/255, 0/255];
+    [194/255, 0/255, 136/255];
     ];
 modelConfig.colorByDepth     = [...
     [1]];
