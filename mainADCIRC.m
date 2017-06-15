@@ -10,7 +10,7 @@ modelConfig.outputFolder = outputFolder;
 modelConfig.lat =  19.1965;
 modelConfig.lon = -96.08;
 %----------------------- Spill timing (yyyy,mm,dd) -----------------------%
-modelConfig.startDate = datetime(2010,04,25);
+modelConfig.startDate = datetime(2010,04,23);
 modelConfig.endDate   = datetime(2010,04,28);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'adcirc';
@@ -55,14 +55,14 @@ modelConfig.saveImages       = true;
 % Create the colors of the oil
 %modelConfig.colorByComponent = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)
 modelConfig.colorByComponent = [...
-    [0/255, 51/255, 128/255];
+    [66/255, 102/255, 0/255]; 
     [0/255, 117/255, 220/255];
+    [0/255, 51/255, 128/255];
     [153/255, 63/255, 0/255];
-    [76/255, 0/255, 92/255];
     [255/255, 80/255, 5/255];
-    [153/255, 0/255, 0/255];
-    [66/255, 102/255, 0/255];
     [194/255, 0/255, 136/255];
+    [153/255, 0/255, 0/255];
+    [76/255, 0/255, 92/255];
     ];
 modelConfig.colorByDepth     = [...
     [1]];
