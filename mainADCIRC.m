@@ -15,9 +15,9 @@ modelConfig.endDate   = datetime(2010,04,28);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
-modelConfig.barrelsPerParticle = 1000;
+modelConfig.barrelsPerParticle = 100;
 %----------------------- Lagrangian time step (h) ------------------------%
-modelConfig.timeStep = 3;
+modelConfig.timeStep = 1;
 %--------------------------- Simulation depths ---------------------------%
 modelConfig.depths = [0]; % First index MUST be 0 (surface)
 %------------------- Oil classes proportions per depth -------------------%
@@ -33,7 +33,7 @@ modelConfig.turbulentDiff = [1];
 %------ Wind fraction used to advect particles (only for 0 m depth) ------%
 modelConfig.windcontrib = 0.035;
 %--------------- Distribution of oil per subsurface depth ----------------%
-modelConfig.subSurfaceFraction = [1/5];
+modelConfig.subSurfaceFraction = [1];
 %------------------------------ Oil decay --------------------------------%
 modelConfig.decay.evaporate       = 1;
 modelConfig.decay.collected       = 1;
@@ -55,17 +55,17 @@ modelConfig.saveImages       = true;
 % Create the colors of the oil
 %modelConfig.colorByComponent = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)
 modelConfig.colorByComponent = [...
-    [1    0    0   ];
-    [0.89 0.69 0.17];
-    [1    1    0   ];
-    [0    0    1   ];
-    [0    1    0   ];
-    [0    1    1   ];
-    [0    0    1   ];
-    [1    0    1   ];
-    [0.7  0    0.70]];
+    [79 170 126];
+    [163    97  199];
+    [113    177 63];
+    [197    93  147];
+    [154    144 65];
+    [101    136 205];
+    [208    129 61];
+    [202    83  82];
+    ];
 modelConfig.colorByDepth     = [...
-    [1    1    1   ]];
+    [1]];
 %-------------------- Initial particle vector size -----------------------%
 %----------------- This is just for memory allocation --------------------%
 if modelConfig.decay.exp_degradation
