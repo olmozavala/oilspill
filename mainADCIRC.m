@@ -17,7 +17,7 @@ modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
 modelConfig.barrelsPerParticle = 100;
 %----------------------- Lagrangian time step (h) ------------------------%
-modelConfig.timeStep = 6;
+modelConfig.timeStep = 1;
 %--------------------------- Simulation depths ---------------------------%
 modelConfig.depths = [0]; % First index MUST be 0 (surface)
 %------------------- Oil classes proportions per depth -------------------%
