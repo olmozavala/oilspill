@@ -15,9 +15,9 @@ modelConfig.endDate   = datetime(2010,04,28);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'adcirc';
 %---------------- Oil barrels representing one particle ------------------%
-modelConfig.barrelsPerParticle = 500;
+modelConfig.barrelsPerParticle = 100;
 %----------------------- Lagrangian time step (h) ------------------------%
-modelConfig.timeStep = 2;
+modelConfig.timeStep = 1;
 %--------------------------- Simulation depths ---------------------------%
 modelConfig.depths = [0]; % First index MUST be 0 (surface)
 %------------------- Oil classes proportions per depth -------------------%
@@ -33,7 +33,7 @@ modelConfig.turbulentDiff = [1];
 %------ Wind fraction used to advect particles (only for 0 m depth) ------%
 modelConfig.windcontrib = 0.035;
 %--------------- Distribution of oil per subsurface depth ----------------%
-modelConfig.subSurfaceFraction = [1/5];
+modelConfig.subSurfaceFraction = [1];
 %------------------------------ Oil decay --------------------------------%
 modelConfig.decay.evaporate       = 1;
 modelConfig.decay.collected       = 1;
@@ -55,17 +55,17 @@ modelConfig.saveImages       = true;
 % Create the colors of the oil
 %modelConfig.colorByComponent = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)
 modelConfig.colorByComponent = [...
-    [1    0    0   ];
-    [0.89 0.69 0.17];
-    [1    1    0   ];
-    [0    0    1   ];
-    [0    1    0   ];
-    [0    1    1   ];
-    [0    0    1   ];
-    [1    0    1   ];
-    [0.7  0    0.70]];
+    [66/255, 102/255, 0/255]; 
+    [0/255, 117/255, 220/255];
+    [0/255, 51/255, 128/255];
+    [153/255, 63/255, 0/255];
+    [255/255, 80/255, 5/255];
+    [194/255, 0/255, 136/255];
+    [153/255, 0/255, 0/255];
+    [76/255, 0/255, 92/255];
+    ];
 modelConfig.colorByDepth     = [...
-    [1    1    1   ]];
+    [1]];
 %-------------------- Initial particle vector size -----------------------%
 %----------------- This is just for memory allocation --------------------%
 if modelConfig.decay.exp_degradation

@@ -19,7 +19,7 @@ classdef VisualizeParticles
             % Constructor of the class. Creates a new visualization
             obj.currFig = figure;
             obj.firstTime = true;
-            obj.particleSize = 4;
+            obj.particleSize = 6;
 	   end
 	   function obj = drawGulf(obj)
          % Constructor of the class. Creates a new visualization
@@ -162,7 +162,7 @@ classdef VisualizeParticles
                 end
                 hleg1 = legend(pt,'C1','C2','C3','C4','C5','C6','C7','C8');
                 
-                [obj.xq,obj.yq] = meshgrid(lonlim(1):.1:-94, latlim(1):.1:latlim(2));
+                [obj.xq,obj.yq] = meshgrid(lonlim(1):.1:-92, latlim(1):.1:latlim(2));
                 [s1 s2] = size(obj.xq);
                 
                 xqv = reshape(obj.xq,s1*s2,1);
@@ -172,11 +172,11 @@ classdef VisualizeParticles
                 
                 Uq = griddata(VF.LON,VF.LAT,VF.U,obj.xq,obj.yq).*obj.mask;
                 Vq = griddata(VF.LON,VF.LAT,VF.V,obj.xq,obj.yq).*obj.mask;
-                obj.g1 = quiver(obj.xq,obj.yq,Uq,Vq);
-                
+                obj.g1 = quiver(obj.xq,obj.yq,Uq,Vq,1.5);
+               
                 UWRq = griddata(VF.LON,VF.LAT,VF.UWR,obj.xq,obj.yq).*obj.mask;
                 VWRq = griddata(VF.LON,VF.LAT,VF.VWR,obj.xq,obj.yq).*obj.mask;
-                obj.g2 = quiver(obj.xq,obj.yq,UWRq,VWRq);  
+                obj.g2 = quiver(obj.xq,obj.yq,UWRq,VWRq,1.5);  
                 
                 
                 obj.myf.XDataMode = 'manual';
