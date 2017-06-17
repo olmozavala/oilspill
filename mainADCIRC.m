@@ -3,7 +3,7 @@
 close all; clear; clc; format compact
 tic()
 %--- Edit addLocalPaths.m to address your input and output directories ---%
-outputFolder = addLocalPaths();
+[inputFolder outputFolder] = addLocalPaths();
 modelConfig = ModelConfig;
 modelConfig.outputFolder = outputFolder;
 %---------------------------- Spill location -----------------------------%

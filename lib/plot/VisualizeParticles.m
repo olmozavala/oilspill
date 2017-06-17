@@ -1,18 +1,26 @@
 classdef VisualizeParticles
-    properties
-        currFig
-        firstTime
-        particleSize
-        myf
-        myfd
-        myh
-        myhd
-        an
+    properties (Access = private)
+        currFig  % Pointer to the main figure that is being used to draw the particles
+        firstTime % Boolean variable that indicates if is the first time we draw something
+        particleSize % Int Particle size 
+        %myfd
+        %myhd
+        an % Used to make an annotation inside the figure
+        leg % Used to make a custom legend inside the figure
         xq
         yq
-        mask
+        mask % Holds a mask of the domain 
         g1
         g2
+    end
+    methods(Static)
+        function res = getLabel(totComp)
+            cellLabel = {};
+            for ii = 1:totComp
+                cellLabel{ii} = strcat('C',num2str(ii));
+            end
+            res = cellstr(cellLabel);
+        end
     end
     methods
         function obj = VisualizeParticles()
@@ -24,14 +32,13 @@ classdef VisualizeParticles
 	   function obj = drawGulf(obj)
          % Constructor of the class. Creates a new visualization
             DrawGulfOfMexico();
-            	   end
+         end
 
         function obj = drawGulf2d(obj)
             DrawGulfOfMexico2D();
         end
 
          function obj = drawLiveParticles3D(obj,Particles, modelConfig, currTime)
-            %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
             LiveParticles = findobj(Particles, 'isAlive',true);
             %DeadParticles = findobj(Particles, 'isAlive',false);
             if  obj.firstTime
@@ -42,11 +49,10 @@ classdef VisualizeParticles
                 set(gca,'BoxStyle','full','Box','on');
                 hold on
 
-                obj.myf = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
+                obj.currFig = scatter3([LiveParticles.lastLon], [LiveParticles.lastLat], ...
                     -[LiveParticles.lastDepth],obj.particleSize,modelConfig.colorByDepth([LiveParticles.lastDepthIdx],:),'filled');
                 
-                obj.myf.XDataMode = 'manual';
-                obj.myh.XDataMode = 'manual';
+                obj.currFig.XDataMode = 'manual';
 
                 %obj.myfd = scatter3([DeadParticles.lastLon], [DeadParticles.lastLat], ...
                 %                    -[DeadParticles.lastDepth],obj.particleSize,'w','filled');
@@ -57,25 +63,23 @@ classdef VisualizeParticles
                 title(datestr(currTime,'YYYY-mm-DD  HH'));
                 drawnow
             else
-
                 %obj.myfd.XData = [DeadParticles.lastLon];
                 %obj.myfd.YData = [DeadParticles.lastLat];
                 %obj.myfd.ZData = -[DeadParticles.lastDepth];
 
-                obj.myf.XData = [LiveParticles.lastLon];
-                obj.myf.YData = [LiveParticles.lastLat];
-                obj.myf.ZData = -[LiveParticles.lastDepth];
-                obj.myf.CData = modelConfig.colorByDepth([LiveParticles.lastDepthIdx],:);
+                obj.currFig.XData = [LiveParticles.lastLon];
+                obj.currFig.YData = [LiveParticles.lastLat];
+                obj.currFig.ZData = -[LiveParticles.lastDepth];
+                obj.currFig.CData = modelConfig.colorByDepth([LiveParticles.lastDepthIdx],:);
                 
                 title(datestr(currTime,'YYYY-mm-DD  HH'));
                 drawnow
             end
             if modelConfig.saveImages
-                saveas(obj.myf, strcat(modelConfig.outputFolder , datestr(currTime,'YYYY-mm-DD_HH')),'jpg');
+                saveas(obj.currFig, strcat(modelConfig.outputFolder , datestr(currTime,'YYYY-mm-DD_HH')),'jpg');
             end
         end 
          function obj = drawLiveParticles2D(obj,Particles, modelConfig, currTime)
-            %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
             LiveParticles = findobj(Particles, 'isAlive',true);
             LiveParticles = findobj(LiveParticles, 'lastDepth',0);
 
@@ -92,30 +96,29 @@ classdef VisualizeParticles
                 axis tight;
                 set(gca,'BoxStyle','full','Box','on');
                 hold on
-                obj.myf = scatter3(lons(sortedIdx), lats(sortedIdx), depths(sortedIdx) , ...
-                                obj.particleSize,modelConfig.colorByComponent(components(sortedIdx),:),'filled');
+                %obj.currFig = scatter3(lons(sortedIdx), lats(sortedIdx), depths(sortedIdx) , ...
+                                %obj.particleSize,modelConfig.colorByComponent(components(sortedIdx),:),'filled');
 
-                obj.myf.XDataMode = 'manual';
-                obj.myh.XDataMode = 'manual';
+                obj.currFig = gscatter(lons(sortedIdx), lats(sortedIdx),components(sortedIdx), modelConfig.colorByComponent, '.',obj.particleSize);
+                obj.currFig.XDataMode = 'manual';
 
                 title(datestr(currTime,'YYYY-mm-DD  HH'));
                 drawnow
             else
-                obj.myf.XData = lons(sortedIdx);
-                obj.myf.YData = lats(sortedIdx);
-                obj.myf.ZData = depths(sortedIdx);
-                obj.myf.CData = modelConfig.colorByComponent(components(sortedIdx),:);
+                obj.currFig.XData = lons(sortedIdx);
+                obj.currFig.YData = lats(sortedIdx);
+                obj.currFig.ZData = depths(sortedIdx);
+                obj.currFig.CData = modelConfig.colorByComponent(components(sortedIdx),:);
                 
                 title(datestr(currTime,'YYYY-mm-DD  HH'));
                 drawnow
             end
             if modelConfig.saveImages
-                saveas(obj.myf, strcat(modelConfig.outputFolder , 'Comp', datestr(currTime,'YYYY-mm-DD_HH')),'jpg');
+                saveas(obj.currFig, strcat(modelConfig.outputFolder , 'Comp', datestr(currTime,'YYYY-mm-DD_HH')),'jpg');
             end
         end 
 
         function obj = drawParticles2DCoastline(obj,VF, Particles,modelConfig,currTime,currHour,currDay)
-            %plotParticlesSingleTime(Particles, modelConfig, f, currDay - startDay)
             LiveParticles = findobj(Particles, 'isAlive',true);
             LiveParticles = findobj(LiveParticles, 'lastDepth',0);
             
@@ -139,9 +142,10 @@ classdef VisualizeParticles
                     %                 axis([-96.2 -96 19.10 19.26]);
               
                 hold on
-                obj.myf = scatter(lons(sortedIdx), lats(sortedIdx),...
-                    obj.particleSize,modelConfig.colorByComponent(components(sortedIdx),:),'filled');
                 
+                obj.currFig = gscatter(lons(sortedIdx), lats(sortedIdx),components(sortedIdx), modelConfig.colorByComponent, '.',obj.particleSize);
+                legend(obj.currFig, VisualizeParticles.getLabel(modelConfig.totComponents));
+
                 title('Oil Dispersion by component')
                 xlabel('Longitude')
                 ylabel('Latitude')
@@ -154,13 +158,7 @@ classdef VisualizeParticles
                 fechastr = datestr(daystr,formato);
                 str = sprintf('Date %s, Hour %d', fechastr, currHour);
                 obj.an = annotation('textbox',dim,'String',str,'FitBoxToText','on','BackgroundColor','w');
-                %t1 = 101010101010101010101
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                pt = zeros(length(modelConfig.colorByComponent), 1);
-                for comp=1:length(modelConfig.colorByComponent)
-                    pt(comp) = scatter(NaN,NaN,2,modelConfig.colorByComponent(comp,:),'filled');
-                end
-                hleg1 = legend(pt,'C1','C2','C3','C4','C5','C6','C7','C8');
                 
                 [obj.xq,obj.yq] = meshgrid(lonlim(1):.1:-92, latlim(1):.1:latlim(2));
                 [s1 s2] = size(obj.xq);
@@ -178,19 +176,20 @@ classdef VisualizeParticles
                 VWRq = griddata(VF.LON,VF.LAT,VF.VWR,obj.xq,obj.yq).*obj.mask;
                 obj.g2 = quiver(obj.xq,obj.yq,UWRq,VWRq,1.5);  
                 
-                
-                obj.myf.XDataMode = 'manual';
-                obj.myh.XDataMode = 'manual';
+                for ic = 1:modelConfig.totComponents
+                    obj.currFig(ic).XDataMode = 'manual';
+                end
                 obj.g1.XDataMode = 'manual';
                 obj.g2.XDataMode = 'manual';
                 
-                %title(datestr(currTime,'YYYY-mm-DD  HH'));
+                ht = text(5, 0.5, {'{\color{red} o } Red', '{\color{blue} o } Blue', '{\color{black} o } Black'}, 'EdgeColor', 'k');
                 drawnow
             else
-                obj.myf.XData = lons(sortedIdx);
-                obj.myf.YData = lats(sortedIdx);
-                %obj.myf.ZData = depths(sortedIdx);
-                obj.myf.CData = modelConfig.colorByComponent(components(sortedIdx),:);
+                for ic = 1:modelConfig.totComponents
+                    currIdx = components == ic;
+                    obj.currFig(ic).XData = lons(currIdx);
+                    obj.currFig(ic).YData = lats(currIdx);
+                end
                 
                 Uq = griddata(VF.LON,VF.LAT,VF.U,obj.xq,obj.yq).*obj.mask;
                 Vq = griddata(VF.LON,VF.LAT,VF.V,obj.xq,obj.yq).*obj.mask;
@@ -202,19 +201,18 @@ classdef VisualizeParticles
                 obj.g2.UData = UWRq;
                 obj.g2.VData = VWRq;   
                 
-                
                 daystr = toSerialDate(modelConfig.startDate.Year,currDay,currHour);
                 formato = 'dd-mm-yyyy';
                 fechastr = datestr(currTime,'YYYY-mm-DD');
                 str = sprintf('Date %s, Hour %.1f', fechastr, currHour);
                 obj.an.String = str;
+                obj.leg = text(5.1,0.78, '*', 'Color', 'blue');
                 
-                %title(datestr(currTime,'YYYY-mm-DD  HH'));
                 refreshdata
                 drawnow
             end
             if modelConfig.saveImages
-                print('-r200',strcat(modelConfig.outputFolder , 'Comp', datestr(currTime,'YYYY-mm-DD_HH')),'-djpeg99');
+                saveas(obj.currFig(1), strcat(modelConfig.outputFolder ,'Comp',  datestr(currTime,'YYYY-mm-DD_HH')),'jpg');
             end
         end
     end
