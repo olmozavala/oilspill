@@ -13,7 +13,7 @@ function OilSpillModel(modelConfig)
 spillData          = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB);
 %Check model type
 if strcmp(modelConfig.model,'hycom')
-    VF                 = VectorFields();
+    VF  = VectorFields();
 elseif strcmp(modelConfig.model,'adcirc')
     %===============ADCIRC EXCLUSIVE==============
     atmFilePrefix  = 'fort.74.'; % File prefix for the atmospheric netcdf files

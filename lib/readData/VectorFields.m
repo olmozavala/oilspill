@@ -16,6 +16,7 @@ classdef VectorFields
       depths % Array of depths corresponding to U and V
       depthsIndx% Array of indexes corresponding to closest indexes at each depth of the particles
       depthsRelativeIndx% Array of indexes corresponding to closest indexes at each depth of the particles for cutted U and V
+      BBOX   % This is an array containing the boundary box of our model [minlat minlon maxlat maxlon]
   end
   properties (Access = private)
       depthsIndxLocal% Array of indexes corresponding to closest indexes at each depth of the particles
@@ -81,6 +82,7 @@ classdef VectorFields
             % Used to read the files min and max depth values
             obj.depthsMinMax = [find( modelConfig.depths(1) >= obj.depths, 1, 'last'), find( obj.depths >= modelConfig.depths(end), 1, 'first')];
 
+            obj.BBOX = [min(lat) min(lon) max(lat) max(lon)];
             [obj.LON, obj.LAT] = meshgrid(lon,lat);
          end
          function obj = readUV(obj, modelHour, modelDay, modelConfig)

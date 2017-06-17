@@ -20,6 +20,8 @@ modelConfig.totComponents      = length(modelConfig.components(1,:));
 %modelConfig.colorByComponent   = colorGradient([1 0 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
 modelConfig.colorByComponent   = colorGradient([0 1 0],[0 0 1],modelConfig.totComponents)% Creates the colors of the oil
 
+%hycom | adcirc--------- Model Type--------------- -----------------------%
+modelConfig.model              = 'hycom';
 
 modelConfig.windcontrib        = 0.035;   % Wind contribution
 modelConfig.turbulentDiff      = [1,1,1]; % Turbulent diffusion (surface and each depth)

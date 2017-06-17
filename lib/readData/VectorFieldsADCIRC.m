@@ -23,6 +23,7 @@ classdef VectorFieldsADCIRC
         oceanFilePrefix  % File prefix for the ocean netcdf files
         uvar % Is the name of the variable U inside the netCDF file
         vvar % Is the name of the variable V inside the netCDF file
+        BBOX   % This is an array containing the boundary box of our model [minlat minlon maxlat maxlon]
         %===============ADCIRC EXCLUSIVE==============
         ELE % Nodes of an Element
         E2E5 %Table of the Elements that surround an element at 5 levels
@@ -102,6 +103,7 @@ classdef VectorFieldsADCIRC
                 % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
                 lat = double(ncread(readOceanFile,'y'));
                 lon = double(ncread(readOceanFile,'x'));
+                obj.BBOX = [min(lat) min(lon) max(lat) max(lon)];
                 
                 %===============ADCIRC EXCLUSIVE==============
                 %ele now has the elements from the FORT.14 mesh. Since

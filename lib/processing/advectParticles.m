@@ -21,7 +21,6 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
         currPartIndex = particleDepths == depth;
         % Get the corresponding indexes of the lived particles
         originalIndexes = find(currPartIndex);
-        numParticles = sum(currPartIndex);
 
         % Get current particles lats and lons
         latP = allLat(currPartIndex);
@@ -95,8 +94,11 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
         newLatP= latP + (DeltaT*VhalfPart)*(180/(R*pi));
         newLonP= lonP + ((DeltaT*UhalfPart)*(180/(R*pi))).*cosd(latP);
 
-        % Iterate over the particles and add the new positions
-        for idxPart = 1:numParticles
+        % Verify we are still inside the current values
+        nanValues = isnan(newLonP) | isnan(newLatP);
+
+        % Iterate over the live particles and add the new positions
+        for idxPart = find(~nanValues)
             % Get current particle id
             particle = LiveParticles(originalIndexes(idxPart));
             currTimeStep = particle.currTimeStep + 1;
@@ -114,7 +116,43 @@ function Particles = advectParticles(VF, modelConfig, Particles, nextTime)
             particle.dates(currTimeStep) = nextTime;
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
-    
+        end
+
+        nanIndexes = find(nanValues);
+        if length(nanIndexes) > 0
+            % We need to decide from the ones that have NaN values, if they went
+            % to land, or if they went outside the BBOX of the model
+            BBOX = VF.BBOX;
+            latsNan = latP(nanValues);% Get the lattitudes where we get nan values
+            lonsNan = lonP(nanValues);% Get the longitudes where we get nan values
+            deltaX = 1;% Define the distance in degrees that we will use to decide if they are outside (close enough) to the BBOX
+
+            % Verify if we are outside the BBOX
+            outsideBBOX = ((latsNan - deltaX) < BBOX(1)) | ((latsNan + deltaX) > BBOX(3)) | ((lonsNan - deltaX) < BBOX(2)) | ((lonsNan + deltaX) > BBOX(4));
+            
+            % Iterate over the particles that went outside the BBOX
+            for idxPart = nanIndexes(find(outsideBBOX))
+                % Get current particle id
+                particle = LiveParticles(originalIndexes(idxPart));
+                % Update the next time
+                particle.dates(currTimeStep) = nextTime;
+                % Lifetime of the particle in hours
+                particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
+                particle.isAlive = 0;
+                particle.status = 'L';
+            end
+
+            % Iterate over the particles that went to land
+            for idxPart = nanIndexes(find(~outsideBBOX))
+                % Get current particle id
+                particle = LiveParticles(originalIndexes(idxPart));
+                % Update the next time
+                particle.dates(currTimeStep) = nextTime;
+                % Lifetime of the particle in hours
+                particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
+                particle.isAlive = 0;
+                particle.status = 'O';
+            end
         end
 
         % Increment the index for the current depth value
