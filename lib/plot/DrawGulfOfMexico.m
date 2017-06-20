@@ -1,11 +1,11 @@
-function DrawGulfOfMexico()
+function DrawGulfOfMexico(BBOX)
     % It reads the following variables: Lat Lon ZZ (is for all mexico)
     load('Bati_Mex_GEBCO.mat');
     golfo = importdata('golfo.jpg');
 
     %% ------------- Display only the gulf of mexico with a texture ------
-    latlim = [18 31];
-    lonlim= [-98 -80];
+    latlim = [BBOX(1) BBOX(3)];
+    lonlim= [BBOX(2) BBOX(4)];
 
     % Cut the values we are interested in
     LATBBOX= Lat > latlim(1);

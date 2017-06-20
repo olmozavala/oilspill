@@ -104,12 +104,12 @@ classdef VectorFields
             % -------------------- Only executed the first time of the model, reads lat,lon,depths and computes depth indexes ----------
             % Verify the first time we get data
             if obj.currDay == -1
+                % On the first day we read wind and currents
                 firstRead = true;
                 readWindT2 = true;
                 readOceanT2 = true;
 
                 obj = obj.initDepthsIndexes(readOceanFile, readOceanFileT2, readWindFile, modelConfig);
-                % On the first day we read wind and currents
             else
             % -------------------- This we check every other time that is not the first time ---------------
                 % Verify we haven't increase the file name (compared with the previous hour)

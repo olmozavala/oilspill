@@ -25,7 +25,8 @@ classdef ModelConfig
       outputFolder       % String with the path of the output folder
       R                  % Mean radious of earth
       model              % Model used, adcirc or hycom.
-      vistype            % Type of plot for visualization
+      visType            % Type of plot for visualization
+      BBOX               % Boundary box of the visualization
    end
    % TODO constructor that initializes all these fields and validates the input
    methods

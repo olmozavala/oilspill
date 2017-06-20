@@ -10,37 +10,25 @@ function OilSpillModel(modelConfig)
 % VNW                = Cantidad de petroleo recuperado en agua
 % VDB                = Cantidad de petroleo dispersado en la sub-superficie
 [FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB] = cantidades_por_dia;
+
 spillData          = OilSpillData(FechasDerrame,SurfaceOil,VBU,VE,VNW,VDB);
-%Check model type
-if strcmp(modelConfig.model,'hycom')
-    VF  = VectorFields();
-elseif strcmp(modelConfig.model,'adcirc')
-    %===============ADCIRC EXCLUSIVE==============
-    atmFilePrefix  = 'fort.74.'; % File prefix for the atmospheric netcdf files
-    oceanFilePrefix  = 'fort.64.'; % File prefix for the ocean netcdf files
-    uvar = 'u-vel';
-    vvar = 'v-vel';
-    global VF
-    VF                 = VectorFieldsADCIRC(0, atmFilePrefix, oceanFilePrefix, uvar, vvar);
-    VF                 = VF.readLists();
-    VF = VF.readUV(0, 115, modelConfig);
-end
-advectingParticles = false;          % Indicate when should we start reading the UV fields
+
+% Obtain proper datareader and advection function depending on the model type
+[VF advectFunction] = getDataReader(modelConfig.model);
+
+advectingParticles = false;          % Used to indicate when should we start reading the UV fields
 Particles          = Particle.empty; % Start the array of particles empty
 
 %  Initialize the figure for visualization of the particles
 if modelConfig.visualize
-    currentVis = VisualizeParticles;
-    if strcmp(modelConfig.vistype,'coastline')
-        currentVis.drawGulf2d();
-    else
-        currentVis.drawGulf();
-    end
+    currentVis = VisualizeParticles(modelConfig.visType);
+    currentVis.drawBackground(modelConfig.BBOX);
 end
 
 FinalParticles = {};
 startDay = datevec2doy(datevec(modelConfig.startDate));
 endDay = datevec2doy(datevec(modelConfig.endDate));
+
 for currDay = startDay:endDay
   sprintf('---- Day %d -- %d -----', (currDay - startDay), currDay)
   
@@ -63,24 +51,14 @@ for currDay = startDay:endDay
             VF = VF.readUV(currHour, currDay, modelConfig);
             
             % Advect particles
-            if strcmp(modelConfig.model,'hycom')
-                Particles = advectParticles(VF, modelConfig, Particles, nextTime);
-            elseif strcmp(modelConfig.model,'adcirc')
-                Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime);
-            end
+            Particles = advectFunction(VF, modelConfig, Particles, nextTime);
             
             % Degrading particles
             Particles = oilDegradation(Particles, modelConfig, spillData);
             %       end                     % creo que este if sobra
             %  Visualize the current step
             if modelConfig.visualize
-                if strcmp(modelConfig.vistype,'3D')
-                    currentVis = currentVis.drawLiveParticles3D(Particles, modelConfig, currTime);
-                elseif strcmp(modelConfig.vistype,'2D')
-                    currentVis = currentVis.drawLiveParticles2D(Particles, modelConfig, currTime);
-                elseif strcmp(modelConfig.vistype,'coastline')
-                    currentVis = currentVis.drawParticles2DCoastline(VF,Particles,modelConfig,currTime,currHour,currDay);
-                end
+                currentVis = currentVis.drawThisTimeStep(Particles, modelConfig,  VF, currTime, currHour, currDay);
             end
         end
   end

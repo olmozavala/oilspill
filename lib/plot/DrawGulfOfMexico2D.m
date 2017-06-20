@@ -1,4 +1,4 @@
-function DrawGulfOfMexico2D()
+function DrawGulfOfMexico2D(BBOX)
     % It reads the following variables: Lat Lon ZZ (is for all mexico)
 %     load('Bati_Mex_GEBCO.mat');
 %     golfo = importdata('golfo.jpg');
@@ -7,21 +7,10 @@ function DrawGulfOfMexico2D()
     mexico = linea_costa;
 
     %% ------------- Display only the gulf of mexico with a texture ------
-    latlim = [18 31];
-    lonlim= [-98 -80];
+    latlim = [BBOX(1) BBOX(3)];
+    lonlim= [BBOX(2) BBOX(4)];
 
-    % Cut the values we are interested in
-%     LATBBOX= Lat > latlim(1);
-%     LATBBOX= LATBBOX & Lat < latlim(2);
-% 
-%     LONBBOX= Lon > lonlim(1);
-%     LONBBOX= LONBBOX & Lon < lonlim(2);
-% 
-%     Lat = Lat(LATBBOX);
-%     Lon = Lon(LONBBOX);
-%     ZZ = ZZ(LATBBOX,LONBBOX);
     %Draw coastline for values
-
     plot(mexico(:,1),mexico(:,2),'k','LineWidth',1); 
     axis equal
     %Zoom to area of interest

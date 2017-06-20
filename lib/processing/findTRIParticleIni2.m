@@ -1,10 +1,8 @@
-function [ peleout ] = findTRIParticleIni2(xp,yp)
+function [ peleout ] = findTRIParticleIni2(xp,yp,VF)
 %   FINDTRIPARTICLEINI2     Find in what element a particle is located.
 %   PELEOUT = FINDTRIPARTICLEINI2(XP,YP) takes in a particle with
 %   coordinates XP,YP and searches the element PELEOUT where the particle
 %   is located. If a particle is not found then PELEOUT returns 0
-
-global VF;
 
 %Using the VF.TR triangulation object, get the element where the particle
 %with coordinates xp,yp is. (xp,yp can be column vectors).

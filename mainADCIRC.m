@@ -49,9 +49,10 @@ modelConfig.decay.exp_deg.byComponent = thresholds;
 % true | false   Set true for visualizing the results as the model runs
 modelConfig.visualize        = true;
 %3D | 2D | coastline --- Visualization Type-------------------------------%
-modelConfig.vistype          = 'coastline';
+modelConfig.visType          = 'coastline';
 % true | false   Set true for saving the generated images
-modelConfig.saveImages       = true;
+modelConfig.saveImages       = false;
+modelConfig.BBOX             = [18 -98 31 -80]; % BBOX of the visualization
 % Create the colors of the oil
 %modelConfig.colorByComponent = colorGradient([1 1 1],[0 0 .7],modelConfig.totComponents)
 modelConfig.colorByComponent = [...

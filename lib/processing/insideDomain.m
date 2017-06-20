@@ -1,4 +1,4 @@
-function [yesno,xout,yout] = insideDomain(xp,yp,xn,yn)
+function [yesno,xout,yout] = insideDomain(xp,yp,xn,yn,VF)
 %   INSIDEDOMAIN    Find if particle is inside the domain. 
 %   [YESNO,XOUT,YOUT] = INSIDEDOMAIN(PELEIN,XP,YP,YN) takes in the particle with coordinates XP,YP that moved to the new
 %   coordinates XN,YN and determines if the new coordinate is inside or
@@ -10,13 +10,29 @@ function [yesno,xout,yout] = insideDomain(xp,yp,xn,yn)
 %   
 %   This function uses function "findTRIParticleIni2" developed by team
 %   FVCOM/ADCIRC, and the matlab built-in function "inpolygon".
-global VF
 
 xout = xn;
 yout = yn;
 yesno = xp*0;
 cantP = length(xp);
 
+
+%in = inpolygon(xn,yn,VF.CostaX,VF.CostaY);
+%
+%inIdx = find(in);
+%outIdx = find(~in);
+%
+%xout(outIdx) = xp(outIdx);
+%yout(outIdx) = yp(outIdx);
+%
+%peleout = pointLocation(VF.TR,xp(inIdx)',yp(inIdx)');
+%
+%outIdx = find(~peleout);
+%
+%xout(outIdx) = xp(outIdx);
+%yout(outIdx) = yp(outIdx);
+%
+%Change NaN for 0 for consistency with the rest of the program. 
 
 for ii = 1:cantP
     in = inpolygon(xn(ii),yn(ii),VF.CostaX,VF.CostaY);
@@ -25,7 +41,7 @@ for ii = 1:cantP
         xout(ii) = xp(ii);
         yout(ii) = yp(ii);
     else
-        pele = findTRIParticleIni2(xn(ii),yn(ii));
+        pele = findTRIParticleIni2(xn(ii),yn(ii),VF);
 %         if (pele == 0)
 %             %Particle is INSIDE the domain, find the element.
 %             pele = findTRIParticleIni2(xn(ii),yn(ii));

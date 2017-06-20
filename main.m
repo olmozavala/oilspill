@@ -10,8 +10,8 @@ modelConfig.outputFolder = outputFolder;
 modelConfig.lat =  28.738;
 modelConfig.lon = -88.366;
 %----------------------- Spill timing (yyyy,mm,dd) -----------------------%
-modelConfig.startDate = datetime(2010,08,22);
-modelConfig.endDate   = datetime(2010,09,24);
+modelConfig.startDate = datetime(2010,04,22);
+modelConfig.endDate   = datetime(2010,11,24);
 %hycom | adcirc--------- Model Type--------------- -----------------------%
 modelConfig.model              = 'hycom';
 %---------------- Oil barrels representing one particle ------------------%
@@ -43,16 +43,18 @@ modelConfig.decay.collected       = 1;
 modelConfig.decay.burned          = 1;
 modelConfig.decay.burned_radius   = 3; % Burning radius in km
 modelConfig.decay.exp_degradation = 1; % Exponential degradation
-  % Exponential degradation parameters:
-  exp_deg_Percentage = 95;
-  exp_deg_Days       = [3, 6, 9, 12, 15, 18, 21, 24];
-  [thresholds,dailyDecayRates] = threshold(exp_deg_Percentage,exp_deg_Days,modelConfig.timeStep);
-  modelConfig.decay.exp_deg.byComponent = thresholds;
+% Exponential degradation parameters:
+exp_deg_Percentage = 95;
+exp_deg_Days       = [3, 6, 9, 12, 15, 18, 21, 24];
+[thresholds,dailyDecayRates] = threshold(exp_deg_Percentage,exp_deg_Days,modelConfig.timeStep);
+modelConfig.decay.exp_deg.byComponent = thresholds;
 %------------------------------ Plotting ---------------------------------%
 % true | false   Set true for visualizing the results as the model runs
 modelConfig.visualize        = true;
 %3D | 2D | coastline --- Visualization Type-------------------------------%
-modelConfig.vistype          = '3D';
+modelConfig.visType          = '2D';
+modelConfig.BBOX             = [18 -98 31 -80]; % BBOX of the visualization
+
 % true | false   Set true for saving the generated images
 modelConfig.saveImages       = false;
 % Create the colors of the oil

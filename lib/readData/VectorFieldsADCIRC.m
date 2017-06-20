@@ -14,23 +14,25 @@ classdef VectorFieldsADCIRC
         VWRT2 % V (wind rotated) variable for current time
         currHour % Last hour that the model was executred
         currDay % Last day that the model was executred
-        LAT % Latitude vector of the currents and winds
-        LON % Longitude vector of the currents and winds
+        LAT % Latitude (in this case are the set of nodes)
+        LON % Longitude (in this case are the set of nodes)
         depths % Vector of depths corresponding to U and V, its all surface.
         depthsMinMax % Array of indexes corresponding to the minumum and maximum depth of the particles
         depthsIndx% Array of indexes corresponding to closest indexes at each depth of the particles
+        depthsRelativeIndx% Array of indexes corresponding to closest indexes at each depth of the particles for cutted U and V
         atmFilePrefix % File prefix for the atmospheric netcdf files
         oceanFilePrefix  % File prefix for the ocean netcdf files
         uvar % Is the name of the variable U inside the netCDF file
         vvar % Is the name of the variable V inside the netCDF file
         BBOX   % This is an array containing the boundary box of our model [minlat minlon maxlat maxlon]
+
         %===============ADCIRC EXCLUSIVE==============
-        ELE % Nodes of an Element
-        E2E5 %Table of the Elements that surround an element at 5 levels
-        N2E  % Table of the Elements that surround a node
+        ELE % Nodes of an Element (an element is a triangle)
+        E2E5 %Table of the Elements that surround an element at 5 levels (neighbors of each element, up to 4 neighbors)
+        N2E  % Table of the Elements that surround a node  
         CostaX % Node longitude of Coastline of mesh defined by FORT.14 (Longitude).
         CostaY % Node latitude of Coastline of mesh defined by FORT.14 (Latitude))
-        TR %Triangulation
+        TR %Triangulation (nodes of each element)
         MeshInterp %Interp object for future interpolation
         %==============================================
     end
@@ -57,13 +59,69 @@ classdef VectorFieldsADCIRC
         VWRDT2minusVWRDT % This variable always has VDT2 - VD, is used to reduce computations in every iteration
     end
     methods
-        function obj = VectorFieldsADCIRC(currHour, atmFilePrefix, oceanFilePrefix, uvar, vvar)
-            obj.currHour = currHour;
+        function obj = VectorFieldsADCIRC()
+            obj.currHour = 0; % TODO, currently only works starting at hour 0
             obj.currDay = -1;
-            obj.atmFilePrefix = atmFilePrefix;
-            obj.oceanFilePrefix = oceanFilePrefix;
-            obj.uvar = uvar;
-            obj.vvar = vvar;
+            obj.atmFilePrefix = 'fort.74.';
+            obj.oceanFilePrefix = 'fort.64.';
+            obj.uvar ='u-vel';
+            obj.vvar ='v-vel';
+        end
+        function obj = initDepthsIndexes(obj,readOceanFile, readOceanFileT2, readWindFile, modelConfig)
+            % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
+            lat = double(ncread(readOceanFile,'y'));
+            lon = double(ncread(readOceanFile,'x'));
+
+            % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
+            obj.BBOX = [min(lat) min(lon) max(lat) max(lon)];
+
+            %===============ADCIRC EXCLUSIVE==============
+            %ele now has the elements from the FORT.14 mesh. Since
+            %ADCIRC gives 2D outputs, depths are all zero. 
+            ele = double(ncread(readOceanFile,'element'));
+            %                 pele(1:max(size(ele)))=0;
+            % Since ADCIRC 2D has only surface velocities, we create a
+            % zero vector for 'depths'.
+            obj.depths = zeros(1,1);
+            %==============================================
+
+            % Setting the minimum and maximum indexes for the depths of the particles
+            idx = 1;
+            for currDepth = modelConfig.depths
+                floorIdx = find( currDepth >= obj.depths, 1, 'last');
+                ceilIdx = find( obj.depths >= currDepth, 1, 'first');
+                % These are the index 
+                obj.depthsIndx(idx,:) = [floorIdx, ceilIdx];
+
+                % These will be the relative indexes, these are the ones used by advecta particles.
+                if floorIdx == ceilIdx
+                    obj.depthsRelativeIndx(idx,:) = [idx, idx];
+                else
+                    obj.depthsRelativeIndx(idx,:) = [idx, idx+1];
+                end
+                idx = idx + 1;
+            end
+            % Used to read the files min and max depth values
+            obj.depthsMinMax = [find( modelConfig.depths(1) >= obj.depths, 1, 'last'), find( obj.depths >= modelConfig.depths(end), 1, 'first')];
+
+            %===============ADCIRC EXCLUSIVE==============
+            %We cannot make a lat/lon meshgrid with the nonstructured
+            %mesh, so instead we generate vectors for each element. 
+            obj.LON = lon;
+            obj.LAT = lat;
+            obj.ELE = ele';
+            %In here we read the coast nodes to check if particles are
+            %inside the domain.
+            Costa = dlmread('costa.txt');
+            obj.CostaX = obj.LON(Costa);
+            obj.CostaY = obj.LAT(Costa);
+            clear Costa
+            P = [obj.LON obj.LAT];
+            obj.TR = triangulation(obj.ELE,P);
+            obj.MeshInterp = interpTRI1init(obj.LON,obj.LAT,zeros(length(obj.LON),1));
+
+            %==============================================
+            %                 obj.PELE = pele';
         end
         function obj = readUV(obj, modelHour, modelDay, modelConfig)
             windFileNum = floor(modelHour/obj.windDeltaT)+1;
@@ -100,86 +158,7 @@ classdef VectorFieldsADCIRC
                 readWindT2 = true;
                 readOceanT2 = true;
                 
-                % Read Lat,Lon and Depth from files and create meshgrids for currents and wind
-                lat = double(ncread(readOceanFile,'y'));
-                lon = double(ncread(readOceanFile,'x'));
-                obj.BBOX = [min(lat) min(lon) max(lat) max(lon)];
-                
-                %===============ADCIRC EXCLUSIVE==============
-                %ele now has the elements from the FORT.14 mesh. Since
-                %ADCIRC gives 2D outputs, depths are all zero. 
-                ele = double(ncread(readOceanFile,'element'));
-                %                 pele(1:max(size(ele)))=0;
-                % Since ADCIRC 2D has only surface velocities, we create a
-                % zero vector for 'depths'.
-                obj.depths = zeros(1,1);
-                %==============================================
-                
-                % Setting the minimum and maximum indexes for the depths of the particles
-                
-                % Setting the minimum index
-                [val, indx] = min(abs(obj.depths - modelConfig.depths(1)));
-                if val == 0
-                    obj.depthsMinMax(1) = indx;
-                else
-                    % Verify we are on the right side of the closest depth
-                    if (obj.depths(indx) - modelConfig.depths(1)) < 0
-                        obj.depthsMinMax(1) = indx;
-                    else
-                        obj.depthsMinMax(1) = max(indx-1,0);
-                    end
-                end
-                
-                % Setting the Maximum index
-                [val, indx] = min(abs(obj.depths - modelConfig.depths(end)));
-                if val == 0
-                    obj.depthsMinMax(2) = indx;
-                else
-                    % Verify we are on the right side of the closest depth
-                    if (obj.depths(indx) - modelConfig.depths(1)) > 0
-                        obj.depthsMinMax(2) = indx;
-                    else
-                        obj.depthsMinMax(2) = min(indx+1,length(obj.depths));
-                    end
-                end
-                
-                % Assigning the closest indexes for each depth
-                currIndx = 1;
-                for currDepth= modelConfig.depths
-                    [val, indx] = min(abs(obj.depths - currDepth));
-                    if val == 0
-                        % For this depth we only need one index, because is the exact depth
-                        obj.depthsIndx(currIndx,:) = [indx, indx];
-                    else
-                        % Verify we are on the right side of the closest depth
-                        if (obj.depths(indx) - currDepth) > 0
-                            obj.depthsIndx(currIndx,:) = [max(indx-1,0), indx];
-                        else
-                            obj.depthsIndx(currIndx,:) = [indx, min(indx+1,obj.depthsMinMax(2)) ];
-                        end
-                    end
-                    currIndx = currIndx + 1;
-                end
-                
-                %===============ADCIRC EXCLUSIVE==============
-                %We cannot make a lat/lon meshgrid with the nonstructured
-                %mesh, so instead we generate vectors for each element. 
-                obj.LON = lon;
-                obj.LAT = lat;
-                obj.ELE = ele';
-                %In here we read the coast nodes to check if particles are
-                %inside the domain.
-                Costa = dlmread('costa.txt');
-                obj.CostaX = obj.LON(Costa);
-                obj.CostaY = obj.LAT(Costa);
-                clear Costa
-                P = [obj.LON obj.LAT];
-                obj.TR = triangulation(obj.ELE,P);
-                obj.MeshInterp = interpTRI1init(obj.LON,obj.LAT,zeros(length(obj.LON),1));
-
-                %==============================================
-                
-                %                 obj.PELE = pele';
+                obj = obj.initDepthsIndexes(readOceanFile, readOceanFileT2, readWindFile, modelConfig);
             else
                 % -------------------- This we check every other time that is not the first time ---------------
                 % Verify we haven't increase the file name
@@ -239,6 +218,12 @@ classdef VectorFieldsADCIRC
                 %readOceanFile
                 obj.UD = double(ncread(readOceanFile,obj.uvar,[1, 1],[Inf, 1]));
                 obj.VD = double(ncread(readOceanFile,obj.vvar,[1, 1],[Inf, 1]));
+
+                % Making nan the currents with 0 value. Makes it easier all the following computations
+                % TODO verify that both, U and V are 0
+                nanIdx = unique(cat(1,find(obj.UD== 0) , find(obj.VD== 0)));
+                obj.UD(nanIdx) = nan;
+                obj.VD(nanIdx) = nan;
                 
                 %readWindFile
                 TempUW = double(ncread(readWindFile,'windx',[1, 1],[Inf, 1]));
@@ -305,7 +290,6 @@ classdef VectorFieldsADCIRC
             % Verify if we need to read the currents of the next day
             
             if readOceanT2
-                
                 %===============ADCIRC EXCLUSIVE==============
                 %Since the index OceanFileT2Num will have illegal value on
                 %day change, we need to use the first one of the next day.
@@ -323,6 +307,12 @@ classdef VectorFieldsADCIRC
                 end
                 % Obtain the new 'next' winds
                 %[obj.UDT2, obj.VDT2] = rotangle(TempUW, TempVW);
+
+                % Making nan the currents with 0 value. Makes it easier all the following computations
+                % TODO verify that both, U and V are 0
+                nanIdx = unique(cat(1,find(obj.UDT2 == 0) , find(obj.VDT2 == 0)));
+                obj.UDT2(nanIdx) = nan;
+                obj.VDT2(nanIdx) = nan;
                 
                 % Update the temporal variable that holds U(d_1) - U(d_0)
                 obj.UDT2minusUDT = (obj.UDT2 - obj.UD);

@@ -33,11 +33,6 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
     allLat = [LiveParticles.lastLat];
     allLon = [LiveParticles.lastLon];
     
-    %---------ADCIRC EXCLUSIVE---------------------
-    % Get Last Element position of the Particles
-%     pele = [LiveParticles.pele];
-    %==============================================
-    
     % Iterate over the different depths
     dIndx= 1; % Current depth index
     for depth = modelConfig.depths
@@ -147,39 +142,67 @@ function Particles = advectParticlesADCIRC(VF, modelConfig, Particles, nextTime)
         newLatP= latP + (DeltaT*VhalfPart)*(180/(R*pi));
         newLonP= lonP + ((DeltaT*UhalfPart)*(180/(R*pi))).*cosd(latP);
         
-        %---------ADCIRC EXCLUSIVE---------------------
-        %The function insideDomain checks if the particles are still inside
-        %of the fort.14 defined domain, or have left. If they left then the
-        %function returns the old value, if they are still inside the
-        %function updates the position value. 
-        [yesno,newLonP,newLatP] = insideDomain(lonP,latP, newLonP,newLatP);
-        %Check how many particles left. 
-        sum(yesno)
-        %==============================================
-   
-        % Iterate over the particles and add the new positions
-        for idxPart = 1:numParticles
-            % Get current particle
+        % Verify we are still inside the current values
+        nanValues = isnan(newLonP) | isnan(newLatP);
+
+       % Iterate over the live particles and add the new positions
+        for idxPart = find(~nanValues)
+            % Get current particle id
             particle = LiveParticles(originalIndexes(idxPart));
+            currTimeStep = particle.currTimeStep + 1;
             % Add in one the current time step of the particle
-            particle.currTimeStep = particle.currTimeStep + 1;
-            particle.lats(particle.currTimeStep) = newLatP(idxPart);
-            particle.lons(particle.currTimeStep) = newLonP(idxPart);
-            %particle.depths(particle.currTimeStep) = particle.lastDepth;
+            particle.currTimeStep = currTimeStep;
+            particle.lats(currTimeStep) = newLatP(idxPart);
+            particle.lons(currTimeStep) = newLonP(idxPart);
+            particle.depths(currTimeStep) = particle.lastDepth;
             %particle.lastDepth = particle.lastDepth;% If someday we would like to change the depth
-            
+
             particle.lastLat = newLatP(idxPart);
             particle.lastLon = newLonP(idxPart);
-            
+
             % Update the next time
-            particle.dates(particle.currTimeStep) = nextTime;
+            particle.dates(currTimeStep) = nextTime;
             % Lifetime of the particle in hours
             particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
-            
-            end
-            %==============================================
-            
         end
+
+        nanIndexes = find(nanValues);
+        if length(nanIndexes) > 0
+            % We need to decide from the ones that have NaN values, if they went
+            % to land, or if they went outside the BBOX of the model
+            BBOX = VF.BBOX;
+            latsNan = latP(nanValues);% Get the lattitudes where we get nan values
+            lonsNan = lonP(nanValues);% Get the longitudes where we get nan values
+            deltaX = 1;% Define the distance in degrees that we will use to decide if they are outside (close enough) to the BBOX
+
+            % Verify if we are outside the BBOX
+            outsideBBOX = ((latsNan - deltaX) < BBOX(1)) | ((latsNan + deltaX) > BBOX(3)) | ((lonsNan - deltaX) < BBOX(2)) | ((lonsNan + deltaX) > BBOX(4));
+            
+            % Iterate over the particles that went outside the BBOX
+            for idxPart = nanIndexes(find(outsideBBOX))
+                % Get current particle id
+                particle = LiveParticles(originalIndexes(idxPart));
+                % Update the next time
+                particle.dates(currTimeStep) = nextTime;
+                % Lifetime of the particle in hours
+                particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
+                particle.isAlive = 0;
+                particle.status = 'L';
+            end
+
+            % Iterate over the particles that went to land
+            for idxPart = nanIndexes(find(~outsideBBOX))
+                % Get current particle id
+                particle = LiveParticles(originalIndexes(idxPart));
+                % Update the next time
+                particle.dates(currTimeStep) = nextTime;
+                % Lifetime of the particle in hours
+                particle.lifeTime = particle.lifeTime + modelConfig.timeStep;
+                particle.isAlive = 0;
+                particle.status = 'O';
+            end
+        end
+
         % Increment the index for the current depth value
         dIndx = dIndx + 1;
     end
